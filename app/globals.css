@@ -1,0 +1,52 @@
+:root {
+  --paper: #fdfbf5;
+  --ink: #26301b;
+  --low: #3d6b2e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+}
+
+.handoff {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(61, 107, 46, 0.13), transparent 30%),
+    var(--paper);
+}
+
+.handoff-mark {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9f0dd;
+  border: 1px solid rgba(61, 107, 46, 0.32);
+  color: var(--low);
+  font-family: serif;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.handoff p {
+  margin: 0;
+  color: #5c6247;
+  font-size: 14px;
+}
