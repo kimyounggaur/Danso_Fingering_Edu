@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NOTES, C, FONT, BIG, defs, leftPanel } from '../02 계이름 운지법 차트/danso_svg_lib.mjs';
+import { createDansoSynth, DANSO_SYNTH_VERSION } from './danso_synth.mjs';
 
 const DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(DIR, '..');
@@ -29,6 +30,7 @@ const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox
 </svg>`;
 
 const notesJson = JSON.stringify(NOTES);
+const audioEngineSource = createDansoSynth.toString();
 const css = `
 :root{
   color-scheme:light;
@@ -143,12 +145,14 @@ const NOTES=${notesJson};
 const FING={1:'fingL1',2:'fingL2',3:'fingL3',4:'fingR4',5:'fingR5'};
 const SYMBOL={1:'●',0.5:'◐',0:'○'};
 const BREATH={
-  '저취':{desc:'여리게',waves:1,tone:'low',attack:.10,peak:.22,harmonic:.10},
-  '평취':{desc:'보통 세기',waves:2,tone:'low',attack:.06,peak:.26,harmonic:.10},
-  '역취':{desc:'세고 빠르게',waves:3,tone:'high',attack:.03,peak:.30,harmonic:.20}
+  '저취':{desc:'여리게',waves:1,tone:'low',attack:.09,level:.18,air:.027,chiff:.072,brightness:.82,vibratoRate:5.05,vibratoDepth:5.5},
+  '평취':{desc:'보통 세기',waves:2,tone:'low',attack:.058,level:.205,air:.037,chiff:.085,brightness:.98,vibratoRate:5.2,vibratoDepth:6.8},
+  '역취':{desc:'세고 빠르게',waves:3,tone:'high',attack:.038,level:.215,air:.052,chiff:.102,brightness:1.15,vibratoRate:5.45,vibratoDepth:8.6}
 };
+const DANSO_SYNTH_VERSION='${DANSO_SYNTH_VERSION}';
+${audioEngineSource}
 let octaveOn=false,shiftOctave=false,soundOn=true,currentNote=null,selectedButton=1;
-let audioContext=null,activeVoice=null,activePointer=null,activeButton=null,keyboardButton=null;
+let audioContext=null,audioEngine=null,activePointer=null,activeButton=null,keyboardButton=null;
 
 const byId=(id)=>document.getElementById(id);
 const effectiveOctave=()=>octaveOn||shiftOctave;
@@ -234,53 +238,27 @@ function ensureAudio(){
   if(!soundOn)return null;
   const AudioCtor=window.AudioContext||window.webkitAudioContext;
   if(!AudioCtor)return null;
-  if(!audioContext)audioContext=new AudioCtor();
-  if(audioContext.state==='suspended')audioContext.resume();
+  if(!audioContext){
+    try{audioContext=new AudioCtor({latencyHint:'interactive'});}
+    catch(_error){audioContext=new AudioCtor();}
+    audioEngine=createDansoSynth(audioContext);
+    document.body.dataset.synthVersion=DANSO_SYNTH_VERSION;
+  }
+  if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});
   return audioContext;
 }
 
 function releaseVoice(immediate=false){
-  const voice=activeVoice;
-  if(!voice)return;
-  activeVoice=null;
-  const ctx=voice.context;
-  const now=ctx.currentTime;
-  const releaseAt=immediate?now:Math.max(now,voice.startedAt+.5);
-  const end=releaseAt+.4;
-  try{
-    voice.gain.gain.cancelScheduledValues(releaseAt);
-    voice.gain.gain.setValueAtTime(Math.max(.001,voice.sustain),releaseAt);
-    voice.gain.gain.exponentialRampToValueAtTime(.001,end);
-    voice.osc1.stop(end+.06);voice.osc2.stop(end+.06);voice.lfo.stop(end+.06);
-  }catch(_error){}
+  if(audioEngine)audioEngine.release(immediate);
   byId('breathWaves').classList.remove('sustaining');
 }
 
 function startSound(note){
   if(!soundOn)return;
   const ctx=ensureAudio();
-  if(!ctx)return;
-  releaseVoice(true);
+  if(!ctx||!audioEngine)return;
   const spec=BREATH[note.breath];
-  const now=ctx.currentTime;
-  const gain=ctx.createGain();
-  const osc1=ctx.createOscillator();
-  const osc2=ctx.createOscillator();
-  const harmonic=ctx.createGain();
-  const lfo=ctx.createOscillator();
-  const lfoDepth1=ctx.createGain();
-  const lfoDepth2=ctx.createGain();
-  osc1.type='sine';osc2.type='sine';lfo.type='sine';
-  osc1.frequency.value=note.freq;osc2.frequency.value=note.freq*2;lfo.frequency.value=5.2;
-  harmonic.gain.value=spec.harmonic;lfoDepth1.gain.value=note.freq*.0045;lfoDepth2.gain.value=note.freq*.009;
-  lfo.connect(lfoDepth1);lfo.connect(lfoDepth2);lfoDepth1.connect(osc1.frequency);lfoDepth2.connect(osc2.frequency);
-  osc1.connect(gain);osc2.connect(harmonic);harmonic.connect(gain);gain.connect(ctx.destination);
-  const sustain=spec.peak*.78;
-  gain.gain.setValueAtTime(.001,now);
-  gain.gain.linearRampToValueAtTime(spec.peak,now+spec.attack);
-  gain.gain.linearRampToValueAtTime(sustain,now+spec.attack+.08);
-  osc1.start(now);osc2.start(now);lfo.start(now);
-  activeVoice={context:ctx,gain,osc1,osc2,lfo,startedAt:now,sustain};
+  audioEngine.play(note,spec);
   byId('breathWaves').classList.add('sustaining');
 }
 
@@ -347,7 +325,8 @@ byId('soundToggle').addEventListener('click',()=>{
   byId('soundToggle').setAttribute('aria-pressed',String(soundOn));
   byId('soundIcon').textContent=soundOn?'🔊':'🔇';
   byId('soundState').textContent=soundOn?'소리 켬':'소리 끔';
-  if(!soundOn)releaseVoice(true);
+  if(audioEngine)audioEngine.setEnabled(soundOn);
+  if(!soundOn)byId('breathWaves').classList.remove('sustaining');
 });
 
 const settingsDialog=byId('settingsDialog');
@@ -376,6 +355,7 @@ document.addEventListener('keyup',(event)=>{
   if(event.code==='Space')releaseVoice(false);
 });
 window.addEventListener('blur',()=>{if(activeButton)activeButton.classList.remove('pressed');activeButton=null;releaseVoice(true);});
+window.addEventListener('pagehide',()=>{if(audioEngine)audioEngine.destroy();});
 
 (function init(){
   const raw=Number(new URLSearchParams(location.search).get('note'));
@@ -438,7 +418,7 @@ const html = `<!doctype html>
     <div class="sheet-body">
       <h3>키보드로도 연주할 수 있어요</h3>
       <dl class="key-guide"><dt>1–8</dt><dd>계이름 선택</dd><dt>Shift + 숫자</dt><dd>누르는 동안 높은음</dd><dt>O</dt><dd>옥타브 고정 전환</dd><dt>Space</dt><dd>마지막 음 다시 듣기</dd></dl>
-      <div class="tip-card"><strong>소리가 잘 안 날 때</strong><br>처음 누를 때 브라우저가 소리 사용을 허용하도록 해 주세요. 시와 높은 시는 제3공을 반만 막는 운지입니다.</div>
+      <div class="tip-card"><strong>고품질 단소 합성음</strong><br>배음, 입김, 취구 소리와 자연스러운 흔들림을 기기 안에서 실시간으로 합성합니다. 처음 재생할 때 브라우저의 소리를 허용해 주세요.</div>
     </div>
   </dialog>
   <script>${js}</script>
@@ -455,6 +435,8 @@ function verify() {
   if (NOTES[2].holes[2] !== 0.5 || NOTES[9].holes[2] !== 0.5) errors.push('시 반막음 데이터 오류');
   if (NOTES[5].holes.some((value) => value !== 0)) errors.push('미 전부 엶 데이터 오류');
   if (NOTES[6].holes.join() !== NOTES[7].holes.join()) errors.push('파/높은 솔 동일 운지 오류');
+  if (!html.includes(`const DANSO_SYNTH_VERSION='${DANSO_SYNTH_VERSION}'`)) errors.push('단소 합성 엔진 버전 누락');
+  if (!html.includes('createPeriodicWave') || !html.includes('createConvolver')) errors.push('단소 합성 음향 그래프 누락');
   if (html.includes('\uFFFD')) errors.push('U+FFFD 문자가 포함되었습니다.');
   if (/(?:src|href)=["']https?:/i.test(html)) errors.push('외부 네트워크 자원이 포함되었습니다.');
   return errors;
@@ -470,4 +452,3 @@ mkdirSync(PUBLIC_DIR, { recursive: true });
 writeFileSync(join(DIR, '단소_운지법_배우기.html'), html, 'utf8');
 writeFileSync(join(PUBLIC_DIR, 'danso-app.html'), html, 'utf8');
 console.log('✅ 모바일 웹앱 생성 + 데이터/매핑/오프라인 자체 검증 통과');
-
