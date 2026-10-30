@@ -10,7 +10,7 @@
     "dev": "npm run prepare:app && vinext dev",
     "build": "npm run prepare:app && vinext build",
     "start": "vinext start",
-    "test": "npm run build && node --test tests/rendered-html.test.mjs tests/danso-synth.test.mjs",
+    "test": "npm run build && node --test tests/rendered-html.test.mjs tests/danso-synth.test.mjs tests/fingering-motion.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

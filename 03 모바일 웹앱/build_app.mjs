@@ -1,21 +1,22 @@
 // 단소 계이름 운지법 배우기 — 오프라인 단일 HTML 생성기
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { NOTES, C, FONT, BIG, defs, leftPanel } from '../02 계이름 운지법 차트/danso_svg_lib.mjs';
+import { NOTES, C, FONT } from '../02 계이름 운지법 차트/danso_svg_lib.mjs';
+import { animatedReferencePanel, animatedReferenceCss, animatedHolePoints } from './danso_hand_animation.mjs';
 import { createDansoSynth, DANSO_SYNTH_VERSION } from './danso_synth.mjs';
 
 const DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(DIR, '..');
 const PUBLIC_DIR = join(ROOT, 'public');
 
-const ripplePoints = {
-  1: [92, 278],
-  2: [BIG.cx, BIG.holeY[2]],
-  3: [BIG.cx, BIG.holeY[3]],
-  4: [BIG.cx, BIG.holeY[4]],
-  5: [BIG.cx, BIG.holeY[5]],
-};
+const referenceImages = Array.from({ length: 5 }, (_, i) => {
+  const file = `danso-reference-${String(i + 1).padStart(2, '0')}.webp`;
+  const url = 'data:image/webp;base64,' + readFileSync(join(DIR, 'assets', file)).toString('base64');
+  return `<img src="${url}" alt="단소 잡는 자세 참고 이미지 ${i + 1}" loading="lazy">`;
+}).join('');
+
+const ripplePoints = animatedHolePoints;
 
 const rippleSvg = Object.entries(ripplePoints)
   .map(([hole, [x, y]]) => `<circle id="rippleH${hole}" class="hole-ripple" cx="${x}" cy="${y}" r="15"/>`)
@@ -24,8 +25,7 @@ const rippleSvg = Object.entries(ripplePoints)
 const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox="24 178 350 980" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stageTitle stageDesc">
   <title id="stageTitle">단소를 잡은 양손 운지 애니메이션</title>
   <desc id="stageDesc">선택한 음에 맞춰 다섯 손가락이 단소의 지공을 막거나 반만 막거나 엽니다.</desc>
-  ${defs()}
-  ${leftPanel(true)}
+  ${animatedReferencePanel()}
   <g class="ripple-layer" aria-hidden="true">${rippleSvg}</g>
 </svg>`;
 
@@ -101,22 +101,15 @@ body[data-octave="true"] .note-key.selected{box-shadow:0 5px 0 currentColor,0 10
 .float-note{position:absolute;left:50%;top:12px;z-index:3;transform:translateX(-50%);font-size:12px;font-weight:850;color:currentColor;pointer-events:none}
 .finger{transition-property:transform;transition-duration:260ms;transition-timing-function:var(--ease);will-change:transform}
 .finger .ring{transition:opacity 200ms ease}.finger.lifted .ring{opacity:0}
-#fingL2,#fingL3{transform-box:fill-box;transform-origin:15% 50%}
-#fingR4,#fingR5{transform-box:fill-box;transform-origin:85% 50%}
-#fingL1{transform-box:fill-box;transform-origin:30% 70%}
-#fingL2.lifted{transform:translate(-24px,-11px) rotate(-6deg)}
-#fingL3.lifted{transform:translate(-24px,-11px) rotate(-6deg)}
-#fingL3.half{transform:translate(3px,8px)}
-#fingR4.lifted{transform:translate(24px,-11px) rotate(6deg)}
-#fingR5.lifted{transform:translate(24px,-11px) rotate(6deg)}
-#fingL1.lifted{transform:translate(-15px,13px) rotate(-12deg)}
+${animatedReferenceCss}
 .hole-ripple{fill:none;stroke:var(--low);stroke-width:2.5;opacity:0;transform-box:fill-box;transform-origin:center}
 body[data-tone="high"] .hole-ripple{stroke:var(--high)}
 body:not(.ready) .finger{transition:none!important}
 .settings-dialog{width:min(92vw,390px);border:0;border-radius:22px;padding:0;background:var(--paper);color:var(--ink);box-shadow:0 28px 80px rgba(38,48,27,.3)}
 .settings-dialog::backdrop{background:rgba(38,48,27,.38);backdrop-filter:blur(3px)}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--card-line)}
-.sheet-head h2{margin:0;font-size:17px}.sheet-body{padding:16px}
+.sheet-head h2{margin:0;font-size:17px}.sheet-body{padding:16px;max-height:75dvh;overflow-y:auto}
+.reference-photo{margin:14px 0;color:var(--ink);font-size:12px}.reference-photo summary{cursor:pointer;font-weight:750;color:var(--low)}.reference-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.reference-photo img{display:block;width:100%;height:145px;object-fit:contain;border-radius:12px;background:var(--card)}.reference-photo p{color:var(--sub);line-height:1.5}
 .sheet-body h3{margin:0 0 9px;font-size:13px;color:var(--low)}
 .key-guide{display:grid;grid-template-columns:auto 1fr;gap:7px 12px;margin:0 0 16px;font-size:12px}
 .key-guide dt{font-weight:800}.key-guide dd{margin:0;color:var(--sub)}
@@ -155,6 +148,7 @@ let octaveOn=false,shiftOctave=false,soundOn=true,currentNote=null,selectedButto
 let audioContext=null,audioEngine=null,activePointer=null,activeButton=null,keyboardButton=null;
 
 const byId=(id)=>document.getElementById(id);
+const reducedMotion=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const effectiveOctave=()=>octaveOn||shiftOctave;
 const noteForButton=(buttonNo)=>NOTES[(effectiveOctave()?buttonNo+7:buttonNo)-1];
 const fullSol=(note)=>note.id===15?'최고 솔':note.id>=8?'높은 '+note.sol:note.sol;
@@ -192,7 +186,7 @@ function renderInfo(note){
 
 function rippleAt(hole){
   const circle=byId('rippleH'+hole);
-  if(!circle||!circle.animate)return;
+  if(!circle||!circle.animate||reducedMotion())return;
   circle.animate(
     [{opacity:.58,transform:'scale(.55)'},{opacity:0,transform:'scale(1.75)'}],
     {duration:400,easing:'cubic-bezier(.2,.8,.2,1)'}
@@ -263,7 +257,7 @@ function startSound(note){
 }
 
 function floatLabel(button,note){
-  if(!button.animate)return;
+  if(!button.animate||reducedMotion())return;
   const label=document.createElement('span');
   label.className='float-note';label.textContent=fullSol(note);button.appendChild(label);
   const animation=label.animate(
@@ -418,6 +412,7 @@ const html = `<!doctype html>
     <div class="sheet-body">
       <h3>키보드로도 연주할 수 있어요</h3>
       <dl class="key-guide"><dt>1–8</dt><dd>계이름 선택</dd><dt>Shift + 숫자</dt><dd>누르는 동안 높은음</dd><dt>O</dt><dd>옥타브 고정 전환</dd><dt>Space</dt><dd>마지막 음 다시 듣기</dd></dl>
+      <details class="reference-photo"><summary>단소 잡는 자세 참고하기</summary><div class="reference-grid">${referenceImages}</div><p>제공된 이미지는 단소를 잡는 자세를 살펴보기 위한 참고 자료입니다. 선택한 음의 운지는 애니메이션을 확인하세요.</p></details>
       <div class="tip-card"><strong>고품질 단소 합성음</strong><br>배음, 입김, 취구 소리와 자연스러운 흔들림을 기기 안에서 실시간으로 합성합니다. 처음 재생할 때 브라우저의 소리를 허용해 주세요.</div>
     </div>
   </dialog>
