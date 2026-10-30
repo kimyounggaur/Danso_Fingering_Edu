@@ -63,7 +63,8 @@ test("standalone app preserves all 15 SSOT notes and offline behavior", async ()
 
   assert.match(html, /height:100dvh;overflow:hidden;overscroll-behavior:none/);
   assert.match(html, /grid-template-columns:repeat\(4,minmax\(64px,1fr\)\)/);
-  assert.match(html, /viewBox="24 178 350 980"/);
+  assert.match(html, /viewBox="24 230 350 640"/);
+  assert.match(html, /"full":"24 178 350 980"/);
   assert.match(html, /id="fingL1" class="finger"/);
   assert.match(html, /#fingL3\.half\s*\{\s*transform:\s*translate\(0px, 8px\)/);
   assert.match(html, /AudioContext\|\|window\.webkitAudioContext/);
