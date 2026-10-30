@@ -16,6 +16,41 @@ const referenceImages = Array.from({ length: 5 }, (_, i) => {
   return `<img src="${url}" alt="단소 잡는 자세 참고 이미지 ${i + 1}" loading="lazy">`;
 }).join('');
 
+// Native, independently articulated line drawing from the supplied reference.
+// The reconstructed hole locations are omitted; the chart below is the authority.
+const lineSource = readFileSync(join(DIR, 'assets', 'pose01-line-rig.svg'), 'utf8');
+const lineManifest = JSON.parse(readFileSync(join(DIR, 'assets', 'pose01-line-rig.json'), 'utf8'));
+const sceneStart = lineSource.indexOf('<g id="scene">');
+const sceneEnd = lineSource.indexOf('<metadata id="rig-metadata">');
+if (sceneStart < 0 || sceneEnd < 0) throw new Error('라인 SVG의 장면을 찾을 수 없습니다');
+const lineScene = lineSource.slice(sceneStart, sceneEnd)
+  .replace(/<ellipse[^>]*data-hole-reference="approximate"[^>]*\/>/g, '');
+const lineFingers = {2:'left-index',3:'left-middle',4:'right-middle',5:'right-ring'};
+const lineJointCss = Object.entries(lineFingers).map(([hole, finger]) => {
+  const direction = Number(hole) < 4 ? 1 : -1;
+  return ['mcp','pip','dip'].map((joint, index) => {
+    const {pivot} = lineManifest.joints.find(item => item.id === `${finger}-${joint}`);
+    const id = `${finger}-${joint}`;
+    const angle = [8,5,3][index] * direction;
+    const half = [3,2,1][index] * direction;
+    return `#${id}{transform-box:view-box;transform-origin:${pivot[0]}px ${pivot[1]}px;transition:transform 260ms var(--ease)}
+      #${finger}-mcp.lifted${index ? ` #${id}` : ''}{transform:rotate(${angle}deg)}
+      #${finger}-mcp.half${index ? ` #${id}` : ''}{transform:rotate(${half}deg)}`;
+  }).join('\n');
+}).join('\n');
+const lineStates = Array.from({length:5},(_,i)=>{
+  const x=75+i*62;
+  return `<g><text x="${x}" y="775" text-anchor="middle" font-size="15" fill="#4f5b54">${i===0?'① 뒤':`${i+1}공`}</text><text id="lineStateH${i+1}" x="${x}" y="809" text-anchor="middle" font-size="30" fill="#263733">○</text></g>`;
+}).join('');
+const linePanel = `<g id="line-visual">
+  <text x="199" y="278" text-anchor="middle" font-size="17" font-weight="700" fill="#35483e">손가락 움직임 참고</text>
+  <text x="199" y="300" text-anchor="middle" font-size="12" fill="#53655a">지공 상태는 아래 운지표를 확인하세요</text>
+  <svg x="28" y="318" width="342" height="400" viewBox="0 0 1241 1267" overflow="hidden" aria-hidden="true" class="line-illustration">${lineScene}</svg>
+  <text x="199" y="741" text-anchor="middle" font-size="16" font-weight="700" fill="#35483e">선택한 음의 운지 · ①은 뒷면</text>
+  ${lineStates}
+  <text x="199" y="836" text-anchor="middle" font-size="12" fill="#53655a">● 막음　◐ 반 막음　○ 열림</text>
+</g>`;
+
 const ripplePoints = animatedHolePoints;
 
 const rippleSvg = Object.entries(ripplePoints)
@@ -26,9 +61,10 @@ const rippleSvg = Object.entries(ripplePoints)
 const STAGE_VIEWS = { focus: '24 230 350 640', full: '24 178 350 980' };
 const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox="${STAGE_VIEWS.focus}" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stageTitle stageDesc">
   <title id="stageTitle">단소를 잡은 양손 운지 애니메이션</title>
-  <desc id="stageDesc">선택한 음에 맞춰 다섯 손가락이 단소의 지공을 막거나 반만 막거나 엽니다.</desc>
-  ${animatedReferencePanel()}
-  <g class="ripple-layer" aria-hidden="true">${rippleSvg}</g>
+  <desc id="stageDesc">손가락 관절 움직임은 참고 그림이며, 선택한 음의 정확한 지공 상태는 운지표에 표시됩니다. 운지 그림 보기를 선택하면 지공과 손가락 위치를 자세히 볼 수 있습니다.</desc>
+  ${linePanel}
+  <g id="standard-visual" style="display:none">${animatedReferencePanel()}
+  <g class="ripple-layer" aria-hidden="true">${rippleSvg}</g></g>
 </svg>`;
 
 const notesJson = JSON.stringify(NOTES);
@@ -65,12 +101,12 @@ button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
 .stage::before{content:"";position:absolute;width:min(72vw,310px);aspect-ratio:1;border:1px solid rgba(61,107,46,.14);border-radius:50%;box-shadow:0 0 0 18px rgba(61,107,46,.025),0 0 0 38px rgba(61,107,46,.018)}
 .stage::before{left:50%;top:50%;transform:translate(-50%,-50%)}
 .stage-toolbar{position:relative;z-index:1;flex:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px}
-.stage-label{margin:0;font-size:12px;font-weight:750;color:var(--sub)}
+.stage-actions{display:flex;gap:6px;flex-shrink:0}.stage-label{margin:0;font-size:12px;font-weight:750;color:var(--sub)}
 .view-toggle{min-height:44px;padding:0 13px;border:1px solid rgba(92,98,71,.25);border-radius:999px;background:var(--card);font-size:12px;font-weight:750;cursor:pointer}
 .view-toggle[aria-pressed="true"]{color:var(--low);background:var(--low-bg);border-color:var(--low)}
 .icon-button:focus-visible,.view-toggle:focus-visible{outline-offset:-4px}
 .stage-viewport{position:relative;flex:1;min-height:0;width:100%}
-.stage svg{height:100%;width:100%;display:block;filter:drop-shadow(0 12px 24px rgba(74,54,28,.08))}
+.stage #handPanel{height:100%;width:100%;display:block;filter:drop-shadow(0 12px 24px rgba(74,54,28,.08))}
 .play-hint{margin:0;padding:0 12px 7px;color:var(--sub);font-size:11px;line-height:1.5;text-align:center}
 .deck{flex:0 0 auto;border-top:1px solid rgba(92,98,71,.18);background:rgba(253,251,245,.95);box-shadow:0 -12px 36px rgba(74,54,28,.06)}
 .info-strip{min-height:66px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:1px 10px;padding:5px 14px;border-bottom:1px solid rgba(92,98,71,.15)}
@@ -109,6 +145,10 @@ body[data-octave="true"] .note-key.selected{box-shadow:0 5px 0 currentColor,0 10
 .finger{transition-property:transform;transition-duration:260ms;transition-timing-function:var(--ease);will-change:transform}
 .finger .ring{transition:opacity 200ms ease}.finger.lifted .ring{opacity:0}
 ${animatedReferenceCss}
+${lineJointCss}
+.line-illustration [stroke]:not([stroke="none"]) { vector-effect:non-scaling-stroke }
+.line-illustration .joint-guide {display:none}
+body:not(.ready) .line-illustration [data-joint] {transition:none!important}
 .hole-ripple{fill:none;stroke:var(--low);stroke-width:2.5;opacity:0;transform-box:fill-box;transform-origin:center}
 body[data-tone="high"] .hole-ripple{stroke:var(--high)}
 body:not(.ready) .finger{transition:none!important}
@@ -155,6 +195,7 @@ body:not(.ready) .finger{transition:none!important}
 const js = `
 const NOTES=${notesJson};
 const FING={1:'fingL1',2:'fingL2',3:'fingL3',4:'fingR4',5:'fingR5'};
+const LINE_FING={2:'left-index-mcp',3:'left-middle-mcp',4:'right-middle-mcp',5:'right-ring-mcp'};
 const SYMBOL={1:'●',0.5:'◐',0:'○'};
 const BREATH={
   '저취':{desc:'여리게',waves:1,tone:'low',attack:.09,level:.18,air:.027,chiff:.072,brightness:.82,vibratoRate:5.05,vibratoDepth:5.5},
@@ -197,6 +238,7 @@ function renderInfo(note){
   const holeState=byId('holeState');
   holeState.innerHTML=note.holes.map((value)=>'<span>'+SYMBOL[value]+'</span>').join('');
   holeState.setAttribute('aria-label','운지 '+holesText(note.holes));
+  note.holes.forEach((value,index)=>{const marker=byId('lineStateH'+(index+1));if(marker)marker.textContent=SYMBOL[value];});
   byId('breathName').textContent=note.breath;
   byId('breathDesc').textContent=breath.desc;
   byId('breathWaves').querySelectorAll('i').forEach((wave,index)=>wave.classList.toggle('on',index<breath.waves));
@@ -224,6 +266,8 @@ function applyFingering(note,previous,animate=true){
     finger.style.transitionDuration=(state===1?220:260)+'ms';
     finger.classList.toggle('lifted',state===0);
     finger.classList.toggle('half',state===.5);
+    const lineFinger=LINE_FING[hole]?byId(LINE_FING[hole]):null;
+    if(lineFinger){lineFinger.classList.toggle('lifted',state===0);lineFinger.classList.toggle('half',state===.5);}
     if(animate&&state===1&&before!==1)rippleAt(hole);
     const clear=()=>{finger.style.transitionDelay='';finger.style.transitionDuration='';};
     finger.addEventListener('transitionend',clear,{once:true});
@@ -340,6 +384,13 @@ byId('viewToggle').addEventListener('click',()=>{
   byId('viewToggle').setAttribute('aria-pressed',String(full));
   byId('stageLabel').textContent=full?'전체 단소 자세':'손·지공 확대';
 });
+byId('illustrationToggle').addEventListener('click',()=>{
+  const standard=byId('illustrationToggle').getAttribute('aria-pressed')!=='true';
+  byId('standard-visual').style.display=standard?'':'none';
+  byId('line-visual').style.display=standard?'none':'';
+  byId('illustrationToggle').setAttribute('aria-pressed',String(standard));
+  byId('illustrationToggle').textContent=standard?'관절 그림':'운지 그림';
+});
 byId('soundToggle').addEventListener('click',()=>{
   soundOn=!soundOn;
   byId('soundToggle').setAttribute('aria-pressed',String(soundOn));
@@ -415,7 +466,7 @@ const html = `<!doctype html>
     </header>
     <main class="workspace">
       <section class="stage" aria-label="단소 운지 애니메이션 스테이지">
-        <div class="stage-toolbar"><p class="stage-label" id="stageLabel">손·지공 확대</p><button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" aria-controls="handPanel">전체 보기</button></div>
+        <div class="stage-toolbar"><p class="stage-label" id="stageLabel">손·지공 확대</p><div class="stage-actions"><button class="view-toggle" id="illustrationToggle" type="button" aria-pressed="false" aria-controls="handPanel">운지 그림</button><button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" aria-controls="handPanel">전체 보기</button></div></div>
         <div class="stage-viewport">${panelSvg}</div>
       </section>
       <section class="deck" aria-label="음 선택과 연주 컨트롤">

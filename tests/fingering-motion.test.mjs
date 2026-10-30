@@ -76,3 +76,35 @@ test('확대/전체 보기를 반복해도 15음의 운지와 연주 상태를 �
     }
   }
 });
+
+test('라인 일러스트 관절과 정확한 다섯 지공 표식이 모든 음에 맞게 갱신됨',async()=>{
+ const lineIds=['left-index-mcp','left-middle-mcp','right-middle-mcp','right-ring-mcp'];
+ for(const note of NOTES){
+  const {elements}=await boot(note.id);
+  note.holes.forEach((value,i)=>{
+   const symbol={1:'●',0.5:'◐',0:'○'}[value];
+   assert.equal(elements.get('lineStateH'+(i+1)).textContent,symbol,`${note.id}음 ${i+1}공 표식`);
+   if(i>0){const e=elements.get(lineIds[i-1]);assert.equal(e.classList.contains('lifted'),value===0);assert.equal(e.classList.contains('half'),value===.5);}
+  });
+ }
+});
+test('관절 참고 그림과 표준 운지 그림을 바꿔도 선택 음을 보존',async()=>{
+ const {elements,context}=await boot(3); const button=elements.get('illustrationToggle');
+ button.setAttribute('aria-pressed','false');
+ button.events.click();
+ assert.equal(elements.get('line-visual').style.display,'none');
+ assert.equal(elements.get('standard-visual').style.display,'');
+ assert.equal(vm.runInNewContext('currentNote.id',context),3);
+ button.events.click();
+ assert.equal(elements.get('line-visual').style.display,'');
+ assert.equal(elements.get('standard-visual').style.display,'none');
+ assert.equal(vm.runInNewContext('currentNote.id',context),3);
+});
+test('라인 참고 그림은 추정 지공 없이 순수 벡터와 개별 관절로 구성',async()=>{
+ const html=await readFile(new URL('../public/danso-app.html',import.meta.url),'utf8');
+ assert.match(html,/손가락 움직임 참고/);
+ assert.match(html,/선택한 음의 운지 · ①은 뒷면/);
+ assert.doesNotMatch(html,/data-hole-reference="approximate"/);
+ for(const name of ['left-index','left-middle','right-middle','right-ring'])
+   for(const joint of ['mcp','pip','dip'])assert.match(html,new RegExp(`id="${name}-${joint}"`));
+});

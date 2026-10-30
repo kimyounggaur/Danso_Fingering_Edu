@@ -1,0 +1,804 @@
+{
+  "schemaVersion": "1.0",
+  "pose": "01",
+  "width": 1241,
+  "height": 1267,
+  "style": "native-line-illustration",
+  "source": {
+    "reference": "danso_hands_01(2).svg",
+    "sha256": "fbfa2aed42be7b7050980d78fb1efd4841d20ad76fe1e52b2ef7dd981af3bc40",
+    "embedded": false
+  },
+  "coordinateSystem": "original viewBox; x right/y down; positive angle clockwise",
+  "joints": [
+    {
+      "id": "left-wrist",
+      "label": "왼손 · 손목",
+      "hand": "left",
+      "finger": null,
+      "joint": "wrist",
+      "pivot": [
+        1118,
+        425
+      ],
+      "parent": null,
+      "range": [
+        -4,
+        4
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-index-mcp",
+      "label": "왼손 검지 · MCP",
+      "hand": "left",
+      "finger": "index",
+      "joint": "mcp",
+      "pivot": [
+        949,
+        219
+      ],
+      "parent": "left-wrist",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-index-pip",
+      "label": "왼손 검지 · PIP",
+      "hand": "left",
+      "finger": "index",
+      "joint": "pip",
+      "pivot": [
+        791,
+        219
+      ],
+      "parent": "left-index-mcp",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-index-dip",
+      "label": "왼손 검지 · DIP",
+      "hand": "left",
+      "finger": "index",
+      "joint": "dip",
+      "pivot": [
+        661,
+        270
+      ],
+      "parent": "left-index-pip",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-middle-mcp",
+      "label": "왼손 중지 · MCP",
+      "hand": "left",
+      "finger": "middle",
+      "joint": "mcp",
+      "pivot": [
+        1022,
+        347
+      ],
+      "parent": "left-wrist",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-middle-pip",
+      "label": "왼손 중지 · PIP",
+      "hand": "left",
+      "finger": "middle",
+      "joint": "pip",
+      "pivot": [
+        811,
+        402
+      ],
+      "parent": "left-middle-mcp",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-middle-dip",
+      "label": "왼손 중지 · DIP",
+      "hand": "left",
+      "finger": "middle",
+      "joint": "dip",
+      "pivot": [
+        678,
+        456
+      ],
+      "parent": "left-middle-pip",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-ring-mcp",
+      "label": "왼손 약지 · MCP",
+      "hand": "left",
+      "finger": "ring",
+      "joint": "mcp",
+      "pivot": [
+        1009,
+        475
+      ],
+      "parent": "left-wrist",
+      "range": [
+        -5,
+        5
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-ring-pip",
+      "label": "왼손 약지 · PIP",
+      "hand": "left",
+      "finger": "ring",
+      "joint": "pip",
+      "pivot": [
+        850,
+        487
+      ],
+      "parent": "left-ring-mcp",
+      "range": [
+        -5,
+        5
+      ],
+      "rest": 0
+    },
+    {
+      "id": "left-ring-dip",
+      "label": "왼손 약지 · DIP",
+      "hand": "left",
+      "finger": "ring",
+      "joint": "dip",
+      "pivot": [
+        747,
+        517
+      ],
+      "parent": "left-ring-pip",
+      "range": [
+        -5,
+        5
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-wrist",
+      "label": "오른손 · 손목",
+      "hand": "right",
+      "finger": null,
+      "joint": "wrist",
+      "pivot": [
+        129,
+        702
+      ],
+      "parent": null,
+      "range": [
+        -4,
+        4
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-index-mcp",
+      "label": "오른손 검지 · MCP",
+      "hand": "right",
+      "finger": "index",
+      "joint": "mcp",
+      "pivot": [
+        270,
+        553
+      ],
+      "parent": "right-wrist",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-index-pip",
+      "label": "오른손 검지 · PIP",
+      "hand": "right",
+      "finger": "index",
+      "joint": "pip",
+      "pivot": [
+        400,
+        572
+      ],
+      "parent": "right-index-mcp",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-index-dip",
+      "label": "오른손 검지 · DIP",
+      "hand": "right",
+      "finger": "index",
+      "joint": "dip",
+      "pivot": [
+        516,
+        607
+      ],
+      "parent": "right-index-pip",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-middle-mcp",
+      "label": "오른손 중지 · MCP",
+      "hand": "right",
+      "finger": "middle",
+      "joint": "mcp",
+      "pivot": [
+        224,
+        646
+      ],
+      "parent": "right-wrist",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-middle-pip",
+      "label": "오른손 중지 · PIP",
+      "hand": "right",
+      "finger": "middle",
+      "joint": "pip",
+      "pivot": [
+        350,
+        703
+      ],
+      "parent": "right-middle-mcp",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-middle-dip",
+      "label": "오른손 중지 · DIP",
+      "hand": "right",
+      "finger": "middle",
+      "joint": "dip",
+      "pivot": [
+        471,
+        747
+      ],
+      "parent": "right-middle-pip",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-ring-mcp",
+      "label": "오른손 약지 · MCP",
+      "hand": "right",
+      "finger": "ring",
+      "joint": "mcp",
+      "pivot": [
+        151,
+        749
+      ],
+      "parent": "right-wrist",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-ring-pip",
+      "label": "오른손 약지 · PIP",
+      "hand": "right",
+      "finger": "ring",
+      "joint": "pip",
+      "pivot": [
+        248,
+        822
+      ],
+      "parent": "right-ring-mcp",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-ring-dip",
+      "label": "오른손 약지 · DIP",
+      "hand": "right",
+      "finger": "ring",
+      "joint": "dip",
+      "pivot": [
+        325,
+        895
+      ],
+      "parent": "right-ring-pip",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-little-mcp",
+      "label": "오른손 소지 · MCP",
+      "hand": "right",
+      "finger": "little",
+      "joint": "mcp",
+      "pivot": [
+        115,
+        815
+      ],
+      "parent": "right-wrist",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-little-pip",
+      "label": "오른손 소지 · PIP",
+      "hand": "right",
+      "finger": "little",
+      "joint": "pip",
+      "pivot": [
+        107,
+        871
+      ],
+      "parent": "right-little-mcp",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    },
+    {
+      "id": "right-little-dip",
+      "label": "오른손 소지 · DIP",
+      "hand": "right",
+      "finger": "little",
+      "joint": "dip",
+      "pivot": [
+        71,
+        924
+      ],
+      "parent": "right-little-pip",
+      "range": [
+        -8,
+        8
+      ],
+      "rest": 0
+    }
+  ],
+  "parts": [
+    {
+      "id": "instrument",
+      "label": "단소 본체",
+      "hand": null,
+      "finger": null,
+      "segment": "instrument",
+      "joint": null,
+      "bounds": [
+        480.0,
+        0.0,
+        701.0,
+        1267.0
+      ]
+    },
+    {
+      "id": "left-forearm",
+      "label": "왼손 · 팔(고정)",
+      "hand": "left",
+      "finger": null,
+      "segment": "forearm",
+      "joint": null,
+      "bounds": [
+        1015.995,
+        277.27,
+        1240.97,
+        594.518
+      ]
+    },
+    {
+      "id": "left-palm",
+      "label": "왼손 · 손바닥",
+      "hand": "left",
+      "finger": null,
+      "segment": "palm",
+      "joint": "left-wrist",
+      "bounds": [
+        539.686,
+        157.578,
+        1210.43,
+        588.033
+      ]
+    },
+    {
+      "id": "left-index-proximal",
+      "label": "왼손 검지 · 첫째 마디",
+      "hand": "left",
+      "finger": "index",
+      "segment": "proximal",
+      "joint": "left-index-mcp",
+      "bounds": [
+        772.329,
+        157.948,
+        949.0,
+        291.701
+      ]
+    },
+    {
+      "id": "left-index-middle",
+      "label": "왼손 검지 · 가운데 마디",
+      "hand": "left",
+      "finger": "index",
+      "segment": "middle",
+      "joint": "left-index-pip",
+      "bounds": [
+        630.356,
+        157.731,
+        809.516,
+        297.913
+      ]
+    },
+    {
+      "id": "left-index-distal",
+      "label": "왼손 검지 · 끝마디",
+      "hand": "left",
+      "finger": "index",
+      "segment": "distal",
+      "joint": "left-index-dip",
+      "bounds": [
+        553.193,
+        212.848,
+        678.536,
+        342.179
+      ]
+    },
+    {
+      "id": "left-middle-proximal",
+      "label": "왼손 중지 · 첫째 마디",
+      "hand": "left",
+      "finger": "middle",
+      "segment": "proximal",
+      "joint": "left-middle-mcp",
+      "bounds": [
+        783.853,
+        292.962,
+        1033.393,
+        443.904
+      ]
+    },
+    {
+      "id": "left-middle-middle",
+      "label": "왼손 중지 · 가운데 마디",
+      "hand": "left",
+      "finger": "middle",
+      "segment": "middle",
+      "joint": "left-middle-pip",
+      "bounds": [
+        653.979,
+        334.52,
+        831.111,
+        489.396
+      ]
+    },
+    {
+      "id": "left-middle-distal",
+      "label": "왼손 중지 · 끝마디",
+      "hand": "left",
+      "finger": "middle",
+      "segment": "distal",
+      "joint": "left-middle-dip",
+      "bounds": [
+        532.117,
+        386.569,
+        692.881,
+        510.044
+      ]
+    },
+    {
+      "id": "left-ring-proximal",
+      "label": "왼손 약지 · 첫째 마디",
+      "hand": "left",
+      "finger": "ring",
+      "segment": "proximal",
+      "joint": "left-ring-mcp",
+      "bounds": [
+        834.287,
+        409.0,
+        1012.165,
+        554.151
+      ]
+    },
+    {
+      "id": "left-ring-middle",
+      "label": "왼손 약지 · 가운데 마디",
+      "hand": "left",
+      "finger": "ring",
+      "segment": "middle",
+      "joint": "left-ring-pip",
+      "bounds": [
+        732.609,
+        436.034,
+        869.157,
+        555.049
+      ]
+    },
+    {
+      "id": "left-ring-distal",
+      "label": "왼손 약지 · 끝마디",
+      "hand": "left",
+      "finger": "ring",
+      "segment": "distal",
+      "joint": "left-ring-dip",
+      "bounds": [
+        653.414,
+        467.628,
+        759.268,
+        549.843
+      ]
+    },
+    {
+      "id": "right-forearm",
+      "label": "오른손 · 팔(고정)",
+      "hand": "right",
+      "finger": null,
+      "segment": "forearm",
+      "joint": null,
+      "bounds": [
+        8.867,
+        623.031,
+        158.024,
+        953.019
+      ]
+    },
+    {
+      "id": "right-palm",
+      "label": "오른손 · 손바닥",
+      "hand": "right",
+      "finger": null,
+      "segment": "palm",
+      "joint": "right-wrist",
+      "bounds": [
+        97.0,
+        478.189,
+        668.259,
+        921.695
+      ]
+    },
+    {
+      "id": "right-index-proximal",
+      "label": "오른손 검지 · 첫째 마디",
+      "hand": "right",
+      "finger": "index",
+      "segment": "proximal",
+      "joint": "right-index-mcp",
+      "bounds": [
+        261.667,
+        481.318,
+        418.977,
+        618.182
+      ]
+    },
+    {
+      "id": "right-index-middle",
+      "label": "오른손 검지 · 가운데 마디",
+      "hand": "right",
+      "finger": "index",
+      "segment": "middle",
+      "joint": "right-index-pip",
+      "bounds": [
+        383.159,
+        514.516,
+        537.506,
+        646.949
+      ]
+    },
+    {
+      "id": "right-index-distal",
+      "label": "오른손 검지 · 끝마디",
+      "hand": "right",
+      "finger": "index",
+      "segment": "distal",
+      "joint": "right-index-dip",
+      "bounds": [
+        496.652,
+        558.424,
+        629.441,
+        674.0
+      ]
+    },
+    {
+      "id": "right-middle-proximal",
+      "label": "오른손 중지 · 첫째 마디",
+      "hand": "right",
+      "finger": "middle",
+      "segment": "proximal",
+      "joint": "right-middle-mcp",
+      "bounds": [
+        201.293,
+        606.329,
+        370.535,
+        756.401
+      ]
+    },
+    {
+      "id": "right-middle-middle",
+      "label": "오른손 중지 · 가운데 마디",
+      "hand": "right",
+      "finger": "middle",
+      "segment": "middle",
+      "joint": "right-middle-pip",
+      "bounds": [
+        322.625,
+        665.316,
+        489.244,
+        797.307
+      ]
+    },
+    {
+      "id": "right-middle-distal",
+      "label": "오른손 중지 · 끝마디",
+      "hand": "right",
+      "finger": "middle",
+      "segment": "distal",
+      "joint": "right-middle-dip",
+      "bounds": [
+        447.04,
+        712.649,
+        600.348,
+        825.0
+      ]
+    },
+    {
+      "id": "right-ring-proximal",
+      "label": "오른손 약지 · 첫째 마디",
+      "hand": "right",
+      "finger": "ring",
+      "segment": "proximal",
+      "joint": "right-ring-mcp",
+      "bounds": [
+        124.643,
+        712.668,
+        290.811,
+        866.569
+      ]
+    },
+    {
+      "id": "right-ring-middle",
+      "label": "오른손 약지 · 가운데 마디",
+      "hand": "right",
+      "finger": "ring",
+      "segment": "middle",
+      "joint": "right-ring-pip",
+      "bounds": [
+        207.554,
+        778.0,
+        361.375,
+        928.5
+      ]
+    },
+    {
+      "id": "right-ring-distal",
+      "label": "오른손 약지 · 끝마디",
+      "hand": "right",
+      "finger": "ring",
+      "segment": "distal",
+      "joint": "right-ring-dip",
+      "bounds": [
+        293.507,
+        855.259,
+        412.364,
+        978.794
+      ]
+    },
+    {
+      "id": "right-little-proximal",
+      "label": "오른손 소지 · 첫째 마디",
+      "hand": "right",
+      "finger": "little",
+      "segment": "proximal",
+      "joint": "right-little-mcp",
+      "bounds": [
+        78.252,
+        811.308,
+        166.137,
+        891.757
+      ]
+    },
+    {
+      "id": "right-little-middle",
+      "label": "오른손 소지 · 가운데 마디",
+      "hand": "right",
+      "finger": "little",
+      "segment": "middle",
+      "joint": "right-little-pip",
+      "bounds": [
+        47.173,
+        853.418,
+        147.299,
+        953.2
+      ]
+    },
+    {
+      "id": "right-little-distal",
+      "label": "오른손 소지 · 끝마디",
+      "hand": "right",
+      "finger": "little",
+      "segment": "distal",
+      "joint": "right-little-dip",
+      "bounds": [
+        3.0,
+        900.317,
+        100.511,
+        984.296
+      ]
+    }
+  ],
+  "hands": [
+    {
+      "id": "left",
+      "label": "왼손 · 화면 오른쪽 위",
+      "wrist": "left-wrist",
+      "visibleFingers": [
+        "index",
+        "middle",
+        "ring"
+      ],
+      "hiddenFingers": []
+    },
+    {
+      "id": "right",
+      "label": "오른손 · 화면 왼쪽 아래",
+      "wrist": "right-wrist",
+      "visibleFingers": [
+        "index",
+        "middle",
+        "ring",
+        "little"
+      ],
+      "hiddenFingers": []
+    }
+  ],
+  "limitations": [
+    "보이는 손가락을 기준으로 다시 그린 2D 라인 일러스트입니다. 피벗은 사진 투영면의 추정 위치입니다.",
+    "가려진 엄지의 관절과 입체적인 손가락 뒷면은 생성하지 않았습니다.",
+    "단소는 움직임 뒤에 빈 곳이 생기지 않도록 연속된 본체로 보완했습니다. 가려졌던 구멍의 위치는 참고 추정값이며 음별 운지 정답 데이터가 아닙니다.",
+    "큰 회전은 연결부의 겹침을 드러낼 수 있습니다. 권장 각도 범위를 사용하세요."
+  ],
+  "jointUnderlapPx": 7
+}
