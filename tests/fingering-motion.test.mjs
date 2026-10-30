@@ -10,6 +10,7 @@ class FakeElement {
     const set=new Set(); this.classList={toggle:(c,v)=>v?set.add(c):set.delete(c),add:c=>set.add(c),remove:c=>set.delete(c),contains:c=>set.has(c)};
   }
   setAttribute(k,v){this.attrs[k]=v}
+  getAttribute(k){return this.attrs[k]??null}
   removeAttribute(k){delete this.attrs[k]}
   addEventListener(k,v){this.events[k]=v}
   querySelector(){return new FakeElement()}
@@ -25,7 +26,7 @@ async function boot(id, reduced=false) {
   const window={matchMedia:()=>({matches:reduced}),addEventListener(){},setTimeout(){}};
   const context={document,window,navigator:{},URL,URLSearchParams,location:{href:`https://example.test/?note=${id}`,search:`?note=${id}`},history:{replaceState(){}},requestAnimationFrame:fn=>fn()};
   vm.runInNewContext(code,context);
-  return {elements,context};
+  return {elements,context,buttons};
 }
 const ids=['fingL1','fingL2','fingL3','fingR4','fingR5'];
 test('15음의 지공 상태가 손가락 개별 모션과 일치',async()=>{
@@ -47,7 +48,31 @@ test('첨부 사진은 오프라인 참고 자료이고 지공 애니메이션�
  assert.doesNotMatch(html,/(?:src|href)=["']https?:/i);
 });
 test('움직임 줄이기 설정에서 파동 효과를 실행하지 않음',async()=>{
- const {context,elements}=await boot(1,true);let calls=0;
+ const {context}=await boot(1,true);let calls=0;
  context.document.getElementById('rippleH2').animate=()=>{calls++};
  vm.runInNewContext('rippleAt(2)',context);assert.equal(calls,0);
+});
+
+test('확대/전체 보기를 반복해도 15음의 운지와 연주 상태를 보존',async()=>{
+  for(const note of NOTES){
+    const {elements,context,buttons}=await boot(note.id);
+    const toggle=elements.get('viewToggle');
+    toggle.setAttribute('aria-pressed','false');
+    const state=()=>JSON.stringify({
+      fingers:ids.map(id=>[elements.get(id).classList.contains('lifted'),elements.get(id).classList.contains('half')]),
+      note:elements.get('noteName').textContent,
+      selected:buttons.map(b=>b.classList.contains('selected')),
+      octave:context.document.body.dataset.octave,
+      sound:vm.runInNewContext('soundOn',context),
+      noteId:vm.runInNewContext('currentNote.id',context),
+    });
+    const before=state();
+    for(let i=0;i<6;i++){
+      toggle.events.click();
+      const full=i%2===0;
+      assert.equal(toggle.getAttribute('aria-pressed'),String(full));
+      assert.equal(elements.get('handPanel').getAttribute('viewBox'),full?'24 178 350 980':'24 230 350 640');
+      assert.equal(state(),before,`${note.id}음 ${i+1}번째 보기 전환`);
+    }
+  }
 });

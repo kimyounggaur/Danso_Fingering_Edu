@@ -22,7 +22,9 @@ const rippleSvg = Object.entries(ripplePoints)
   .map(([hole, [x, y]]) => `<circle id="rippleH${hole}" class="hole-ripple" cx="${x}" cy="${y}" r="15"/>`)
   .join('');
 
-const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox="24 178 350 980" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stageTitle stageDesc">
+// Keep the rear-thumb inset, every front hole, open fingers and wrist context in focus.
+const STAGE_VIEWS = { focus: '24 230 350 640', full: '24 178 350 980' };
+const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox="${STAGE_VIEWS.focus}" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stageTitle stageDesc">
   <title id="stageTitle">단소를 잡은 양손 운지 애니메이션</title>
   <desc id="stageDesc">선택한 음에 맞춰 다섯 손가락이 단소의 지공을 막거나 반만 막거나 엽니다.</desc>
   ${animatedReferencePanel()}
@@ -56,24 +58,29 @@ button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
 .brand-copy{min-width:0}
 .brand-copy h1{margin:0;font-size:15.5px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand-copy p{display:none;margin:1px 0 0;color:var(--sub);font-size:10.5px}
-.icon-button{width:36px;height:36px;border:0;border-radius:50%;display:grid;place-items:center;background:transparent;font-size:19px;cursor:pointer}
+.icon-button{width:44px;height:44px;border:0;border-radius:50%;display:grid;place-items:center;background:transparent;font-size:19px;cursor:pointer}
 .icon-button:hover{background:rgba(92,98,71,.08)}
 .workspace{flex:1;min-height:0;display:flex;flex-direction:column}
-.stage{position:relative;flex:1;min-height:0;display:grid;place-items:center;padding:6px 10px 4px;overflow:hidden}
+.stage{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;padding:0 8px 4px;overflow:hidden}
 .stage::before{content:"";position:absolute;width:min(72vw,310px);aspect-ratio:1;border:1px solid rgba(61,107,46,.14);border-radius:50%;box-shadow:0 0 0 18px rgba(61,107,46,.025),0 0 0 38px rgba(61,107,46,.018)}
-.stage svg{position:relative;height:100%;width:100%;display:block;filter:drop-shadow(0 12px 24px rgba(74,54,28,.08))}
-.gesture-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);max-width:108px;padding:9px 10px;border:1px solid rgba(92,98,71,.18);border-radius:13px;background:rgba(255,255,255,.72);box-shadow:0 8px 22px rgba(74,54,28,.08);color:var(--sub);font-size:10.5px;line-height:1.45;text-align:center;pointer-events:none}
-.gesture-hint b{display:block;margin-bottom:2px;color:var(--ink);font-size:11px}
-.gesture-hint .hold-dot{display:inline-block;width:7px;height:7px;margin-right:4px;border-radius:50%;background:var(--low);box-shadow:0 0 0 4px rgba(61,107,46,.13)}
+.stage::before{left:50%;top:50%;transform:translate(-50%,-50%)}
+.stage-toolbar{position:relative;z-index:1;flex:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px}
+.stage-label{margin:0;font-size:12px;font-weight:750;color:var(--sub)}
+.view-toggle{min-height:44px;padding:0 13px;border:1px solid rgba(92,98,71,.25);border-radius:999px;background:var(--card);font-size:12px;font-weight:750;cursor:pointer}
+.view-toggle[aria-pressed="true"]{color:var(--low);background:var(--low-bg);border-color:var(--low)}
+.icon-button:focus-visible,.view-toggle:focus-visible{outline-offset:-4px}
+.stage-viewport{position:relative;flex:1;min-height:0;width:100%}
+.stage svg{height:100%;width:100%;display:block;filter:drop-shadow(0 12px 24px rgba(74,54,28,.08))}
+.play-hint{margin:0;padding:0 12px 7px;color:var(--sub);font-size:11px;line-height:1.5;text-align:center}
 .deck{flex:0 0 auto;border-top:1px solid rgba(92,98,71,.18);background:rgba(253,251,245,.95);box-shadow:0 -12px 36px rgba(74,54,28,.06)}
-.info-strip{height:58px;display:grid;grid-template-columns:minmax(98px,1fr) auto minmax(96px,1fr);align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid rgba(92,98,71,.15)}
+.info-strip{min-height:66px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:1px 10px;padding:5px 14px;border-bottom:1px solid rgba(92,98,71,.15)}
 .note-id{display:flex;align-items:baseline;gap:7px;min-width:0}
 .note-name{font-size:25px;font-weight:800;letter-spacing:-.06em;white-space:nowrap}
 .note-yul{color:var(--sub);font-size:15px;font-weight:650;white-space:nowrap}
 .note-yul small{font-size:10.5px;font-weight:500}
-.hole-state{display:flex;gap:4px;justify-content:center;white-space:nowrap}
+.hole-state{grid-column:1 / -1;grid-row:2;display:flex;gap:9px;justify-content:center;white-space:nowrap}
 .hole-state span{width:14px;height:14px;display:grid;place-items:center;font-size:14px;line-height:1}
-.breath{justify-self:end;display:flex;align-items:center;gap:7px;color:var(--low);min-width:0}
+.breath{grid-column:2;grid-row:1;justify-self:end;display:flex;align-items:center;gap:7px;color:var(--low);min-width:0}
 .breath-copy{text-align:right;line-height:1.05}
 .breath-copy strong{display:block;font-size:12px}
 .breath-copy small{color:var(--sub);font-size:9.5px;white-space:nowrap}
@@ -83,8 +90,8 @@ button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
 .breath-waves.sustaining i.on{animation:breathPulse 1.2s ease-in-out infinite}
 .breath-waves.sustaining i:nth-child(2){animation-delay:.12s}.breath-waves.sustaining i:nth-child(3){animation-delay:.24s}
 @keyframes breathPulse{0%,100%{opacity:.35;transform:translateX(-2px)}50%{opacity:1;transform:translateX(2px)}}
-.controls{height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 12px}
-.control{height:38px;border:1px solid rgba(92,98,71,.23);border-radius:999px;background:#fff;padding:0 13px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750;cursor:pointer;box-shadow:0 3px 10px rgba(74,54,28,.05)}
+.controls{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 10px}
+.control{min-height:44px;border:1px solid rgba(92,98,71,.23);border-radius:999px;background:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:750;cursor:pointer;box-shadow:0 3px 10px rgba(74,54,28,.05)}
 .control[aria-pressed="true"]{border-color:currentColor;background:var(--low-bg);color:var(--low)}
 body[data-octave="true"] .control.octave[aria-pressed="true"]{background:var(--high-bg);color:var(--high)}
 .control-glyph{font-size:16px;line-height:1}
@@ -115,18 +122,30 @@ body:not(.ready) .finger{transition:none!important}
 .key-guide dt{font-weight:800}.key-guide dd{margin:0;color:var(--sub)}
 .tip-card{padding:12px 13px;border-radius:14px;background:var(--low-bg);color:var(--sub);font-size:11.5px;line-height:1.55}
 .tip-card strong{color:var(--ink)}
-.close-sheet{border:0;background:var(--card);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:18px}
+.close-sheet{border:0;background:var(--card);border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:18px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media (max-height:700px) and (orientation:portrait){
-  .info-strip{height:54px}.controls{height:44px}.control{height:34px}.keypad{gap:6px;padding-bottom:calc(7px + var(--safe-bottom))}
-  .note-key{min-height:61px;border-radius:14px;padding:6px 7px}.note-key .number{font-size:25px}.gesture-hint{display:none}
+  .info-strip{min-height:60px}.keypad{gap:6px;padding-bottom:calc(7px + var(--safe-bottom))}
+  .note-key{min-height:56px;border-radius:14px;padding:6px 7px}.note-key .number{font-size:25px}
 }
 @media (min-width:640px) and (orientation:landscape){
   .appbar{padding-inline:22px}.brand-copy h1{font-size:17px}.brand-copy p{display:block}
-  .workspace{flex-direction:row;padding:10px;gap:10px}.stage{flex:0 0 calc(55% - 5px);border:1px solid rgba(92,98,71,.16);border-radius:22px;background:rgba(255,255,255,.28)}
-  .deck{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;border:1px solid rgba(92,98,71,.16);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
-  .info-strip{height:70px}.controls{height:58px;padding-inline:16px}.keypad{gap:10px;padding:4px 14px calc(14px + var(--safe-bottom))}
-  .note-key{min-height:76px}.note-key .number{font-size:31px}.note-key .sol{font-size:12px}.note-key .yul{font-size:10.5px}
+  .workspace{flex-direction:row;padding:10px;gap:10px}
+  .stage{flex:1;min-width:0;border:1px solid rgba(92,98,71,.16);border-radius:22px;background:rgba(255,255,255,.28)}
+  .stage-toolbar{padding:6px 8px;min-height:56px}
+  .deck{flex:0 0 clamp(280px,27vw,328px);min-width:0;display:flex;flex-direction:column;border:1px solid rgba(92,98,71,.16);border-radius:22px;overflow-y:auto;overscroll-behavior:contain;box-shadow:var(--shadow)}
+  .info-strip{min-height:104px;padding:12px 16px;gap:8px 10px}
+  .note-name{font-size:30px}.hole-state{gap:16px}.hole-state span{font-size:18px;width:18px;height:18px}
+  .controls{padding:8px 12px}.play-hint{padding:0 10px 10px}
+  .keypad{flex:1;grid-template-columns:repeat(2,minmax(64px,1fr));grid-template-rows:repeat(4,minmax(64px,1fr));gap:10px;padding:0 12px calc(14px + var(--safe-bottom))}
+  .note-key{min-height:64px}.note-key .number{font-size:31px}.note-key .sol{font-size:12px}.note-key .yul{font-size:10.5px}
+}
+@media (min-width:640px) and (orientation:landscape) and (max-height:540px){
+  .deck{flex-basis:300px}.info-strip{min-height:66px;padding:5px 12px;gap:1px 8px}
+  .note-name{font-size:25px}.controls{padding:5px 10px}.play-hint{padding-bottom:7px}
+  .keypad{flex:none;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(60px,1fr));gap:6px;padding-inline:8px}
+  .note-key{min-width:0;min-height:60px;column-gap:3px;padding:6px 4px;border-radius:12px}
+  .note-key .number{font-size:24px}.note-key .sol{font-size:10px}.note-key .yul{font-size:9px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
@@ -143,6 +162,7 @@ const BREATH={
   '역취':{desc:'세고 빠르게',waves:3,tone:'high',attack:.038,level:.215,air:.052,chiff:.102,brightness:1.15,vibratoRate:5.45,vibratoDepth:8.6}
 };
 const DANSO_SYNTH_VERSION='${DANSO_SYNTH_VERSION}';
+const STAGE_VIEWS=${JSON.stringify(STAGE_VIEWS)};
 ${audioEngineSource}
 let octaveOn=false,shiftOctave=false,soundOn=true,currentNote=null,selectedButton=1;
 let audioContext=null,audioEngine=null,activePointer=null,activeButton=null,keyboardButton=null;
@@ -314,6 +334,12 @@ document.querySelectorAll('.note-key').forEach((button)=>{
 });
 
 byId('octaveToggle').addEventListener('click',()=>setOctave(!octaveOn));
+byId('viewToggle').addEventListener('click',()=>{
+  const full=byId('viewToggle').getAttribute('aria-pressed')!=='true';
+  byId('handPanel').setAttribute('viewBox',full?STAGE_VIEWS.full:STAGE_VIEWS.focus);
+  byId('viewToggle').setAttribute('aria-pressed',String(full));
+  byId('stageLabel').textContent=full?'전체 단소 자세':'손·지공 확대';
+});
 byId('soundToggle').addEventListener('click',()=>{
   soundOn=!soundOn;
   byId('soundToggle').setAttribute('aria-pressed',String(soundOn));
@@ -389,8 +415,8 @@ const html = `<!doctype html>
     </header>
     <main class="workspace">
       <section class="stage" aria-label="단소 운지 애니메이션 스테이지">
-        ${panelSvg}
-        <div class="gesture-hint" aria-hidden="true"><b><span class="hold-dot"></span>길게 눌러 보세요</b>누르는 동안<br>음이 이어집니다</div>
+        <div class="stage-toolbar"><p class="stage-label" id="stageLabel">손·지공 확대</p><button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" aria-controls="handPanel">전체 보기</button></div>
+        <div class="stage-viewport">${panelSvg}</div>
       </section>
       <section class="deck" aria-label="음 선택과 연주 컨트롤">
         <div class="info-strip" aria-live="polite" aria-atomic="true">
@@ -403,7 +429,8 @@ const html = `<!doctype html>
           <button class="control octave" id="octaveToggle" type="button" aria-pressed="false"><span class="control-glyph">▲</span><span>옥타브</span><span class="control-hint" id="octaveState">기본음</span></button>
           <button class="control sound" id="soundToggle" type="button" aria-pressed="true"><span class="control-glyph" id="soundIcon">🔊</span><span id="soundState">소리 켬</span></button>
         </div>
-        <div class="keypad" id="keypad" aria-label="계이름 숫자 키패드">${buttons}</div>
+        <p class="play-hint" id="playHint">숫자 버튼을 누르는 동안 소리가 이어져요</p>
+        <div class="keypad" id="keypad" aria-label="계이름 숫자 키패드" aria-describedby="playHint">${buttons}</div>
       </section>
     </main>
   </div>
