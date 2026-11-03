@@ -22,7 +22,7 @@ async function boot(id, reduced=false) {
   const code=html.match(/<script>([\s\S]*)<\/script>/)?.[1];assert.ok(code);
   const elements=new Map(); const get=(id)=>{if(!elements.has(id))elements.set(id,new FakeElement());return elements.get(id)};
   const buttons=Array.from({length:8},(_,i)=>{const b=new FakeElement();b.dataset.button=String(i+1);return b});
-  const document={body:new FakeElement(),getElementById:get,querySelectorAll:(s)=>s==='.note-key'?buttons:[],querySelector:()=>buttons[0],addEventListener(){},createElement:()=>new FakeElement()};
+  const document={body:new FakeElement(),documentElement:new FakeElement(),getElementById:get,querySelectorAll:(s)=>s==='.note-key'?buttons:[],querySelector:()=>buttons[0],addEventListener(){},createElement:()=>new FakeElement()};
   const window={matchMedia:()=>({matches:reduced}),addEventListener(){},setTimeout(){}};
   const context={document,window,navigator:{},URL,URLSearchParams,location:{href:`https://example.test/?note=${id}`,search:`?note=${id}`},history:{replaceState(){}},requestAnimationFrame:fn=>fn()};
   vm.runInNewContext(code,context);

@@ -40,15 +40,15 @@ const lineJointCss = Object.entries(lineFingers).map(([hole, finger]) => {
 }).join('\n');
 const lineStates = Array.from({length:5},(_,i)=>{
   const x=75+i*62;
-  return `<g><text x="${x}" y="775" text-anchor="middle" font-size="15" fill="#4f5b54">${i===0?'① 뒤':`${i+1}공`}</text><text id="lineStateH${i+1}" x="${x}" y="809" text-anchor="middle" font-size="30" fill="#263733">○</text></g>`;
+  return `<g><text class="svg-sub" x="${x}" y="775" text-anchor="middle" font-size="15">${i===0?'① 뒤':`${i+1}공`}</text><text class="svg-ink" id="lineStateH${i+1}" x="${x}" y="809" text-anchor="middle" font-size="30">○</text></g>`;
 }).join('');
 const linePanel = `<g id="line-visual">
-  <text x="199" y="278" text-anchor="middle" font-size="17" font-weight="700" fill="#35483e">손가락 움직임 참고</text>
-  <text x="199" y="300" text-anchor="middle" font-size="12" fill="#53655a">지공 상태는 아래 운지표를 확인하세요</text>
+  <text class="svg-strong" x="199" y="278" text-anchor="middle" font-size="17" font-weight="700">손가락 움직임 참고</text>
+  <text class="svg-muted" x="199" y="300" text-anchor="middle" font-size="12">지공 상태는 아래 운지표를 확인하세요</text>
   <svg x="28" y="318" width="342" height="400" viewBox="0 0 1241 1267" overflow="hidden" aria-hidden="true" class="line-illustration">${lineScene}</svg>
-  <text x="199" y="741" text-anchor="middle" font-size="16" font-weight="700" fill="#35483e">선택한 음의 운지 · ①은 뒷면</text>
+  <text class="svg-strong" x="199" y="741" text-anchor="middle" font-size="16" font-weight="700">선택한 음의 운지 · ①은 뒷면</text>
   ${lineStates}
-  <text x="199" y="836" text-anchor="middle" font-size="12" fill="#53655a">● 막음　◐ 반 막음　○ 열림</text>
+  <text class="svg-muted" x="199" y="836" text-anchor="middle" font-size="12">● 막음　◐ 반 막음　○ 열림</text>
 </g>`;
 
 const ripplePoints = animatedHolePoints;
@@ -70,12 +70,24 @@ const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox
 const notesJson = JSON.stringify(NOTES);
 const audioEngineSource = createDansoSynth.toString();
 const css = `
-:root{
+:root,:root[data-theme="light"]{
   color-scheme:light;
   --paper:${C.paper};--card:${C.card};--card-line:${C.cardLine};--ink:${C.ink};--sub:${C.sub};
   --low:${C.low};--low-bg:${C.lowBg};--high:${C.high};--high-bg:${C.highBg};
   --bamboo:#b9874e;--shadow:0 16px 42px rgba(74,54,28,.13);
+  --raised:#fff;--bar-bg:rgba(253,251,245,.92);--deck-bg:rgba(253,251,245,.95);--stage-bg:rgba(255,255,255,.28);
+  --mark-glow:rgba(255,255,255,.55);--focus:#1769aa;
+  --svg-ink:#263733;--svg-sub:#4f5b54;--svg-strong:#35483e;--svg-muted:#53655a;
   --ease:cubic-bezier(.2,.8,.2,1);--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#161913;--card:#232820;--card-line:#3c4333;--ink:#ece6cf;--sub:#b8b197;
+  --low:#a3d68e;--low-bg:#243320;--high:#f2aa74;--high-bg:#3b2b1c;
+  --bamboo:#b9874e;--shadow:0 16px 42px rgba(0,0,0,.45);
+  --raised:#252b21;--bar-bg:rgba(22,25,19,.92);--deck-bg:rgba(22,25,19,.95);--stage-bg:rgba(255,255,255,.035);
+  --mark-glow:rgba(255,255,255,.07);--focus:#8cc1f0;
+  --svg-ink:#ece6cf;--svg-sub:#cbc5a9;--svg-strong:#e6e0c9;--svg-muted:#b8b197;
 }
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
@@ -84,13 +96,19 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;background:
   radial-gradient(circle at 10% 16%,rgba(61,107,46,.1),transparent 28%),
   radial-gradient(circle at 92% 78%,rgba(180,101,47,.09),transparent 30%)}
 button{font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
-.skip-link{position:fixed;z-index:30;left:12px;top:8px;transform:translateY(-150%);background:#fff;padding:8px 12px;border-radius:8px;color:var(--ink)}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.skip-link{position:fixed;z-index:30;left:12px;top:8px;transform:translateY(-150%);background:var(--raised);padding:8px 12px;border-radius:8px;color:var(--ink)}
 .skip-link:focus{transform:none}
 .app-shell{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column}
-.appbar{height:48px;min-height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 16px;border-bottom:1px solid rgba(92,98,71,.18);background:rgba(253,251,245,.92);backdrop-filter:blur(12px)}
+.appbar{height:48px;min-height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 16px;border-bottom:1px solid rgba(92,98,71,.18);background:var(--bar-bg);backdrop-filter:blur(12px)}
 .brand{display:flex;align-items:center;gap:9px;min-width:0}
-.brand-mark{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:var(--low-bg);border:1px solid rgba(61,107,46,.3);color:var(--low);font-family:serif;font-weight:800;box-shadow:inset 0 0 0 4px rgba(255,255,255,.55)}
+.brand-mark{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:var(--low-bg);border:1px solid rgba(61,107,46,.3);color:var(--low);font-family:serif;font-weight:800;box-shadow:inset 0 0 0 4px var(--mark-glow)}
+.appbar-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.theme-switch{display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid rgba(92,98,71,.25);border-radius:999px;background:var(--card)}
+.theme-switch button{width:40px;height:40px;border:0;border-radius:999px;background:transparent;display:grid;place-items:center;font-size:16px;line-height:1;cursor:pointer;font-variant-emoji:text}
+.theme-switch button:hover{background:rgba(92,98,71,.08)}
+.theme-switch button[aria-pressed="true"]{background:var(--low-bg);color:var(--low)}
+.theme-switch button:focus-visible{outline-offset:-4px}
 .brand-copy{min-width:0}
 .brand-copy h1{margin:0;font-size:15.5px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand-copy p{display:none;margin:1px 0 0;color:var(--sub);font-size:10.5px}
@@ -108,7 +126,7 @@ button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
 .stage-viewport{position:relative;flex:1;min-height:0;width:100%}
 .stage #handPanel{height:100%;width:100%;display:block;filter:drop-shadow(0 12px 24px rgba(74,54,28,.08))}
 .play-hint{margin:0;padding:0 12px 7px;color:var(--sub);font-size:11px;line-height:1.5;text-align:center}
-.deck{flex:0 0 auto;border-top:1px solid rgba(92,98,71,.18);background:rgba(253,251,245,.95);box-shadow:0 -12px 36px rgba(74,54,28,.06)}
+.deck{flex:0 0 auto;border-top:1px solid rgba(92,98,71,.18);background:var(--deck-bg);box-shadow:0 -12px 36px rgba(74,54,28,.06)}
 .info-strip{min-height:66px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:1px 10px;padding:5px 14px;border-bottom:1px solid rgba(92,98,71,.15)}
 .note-id{display:flex;align-items:baseline;gap:7px;min-width:0}
 .note-name{font-size:25px;font-weight:800;letter-spacing:-.06em;white-space:nowrap}
@@ -127,19 +145,19 @@ button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
 .breath-waves.sustaining i:nth-child(2){animation-delay:.12s}.breath-waves.sustaining i:nth-child(3){animation-delay:.24s}
 @keyframes breathPulse{0%,100%{opacity:.35;transform:translateX(-2px)}50%{opacity:1;transform:translateX(2px)}}
 .controls{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 10px}
-.control{min-height:44px;border:1px solid rgba(92,98,71,.23);border-radius:999px;background:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:750;cursor:pointer;box-shadow:0 3px 10px rgba(74,54,28,.05)}
+.control{min-height:44px;border:1px solid rgba(92,98,71,.23);border-radius:999px;background:var(--raised);padding:0 11px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:750;cursor:pointer;box-shadow:0 3px 10px rgba(74,54,28,.05)}
 .control[aria-pressed="true"]{border-color:currentColor;background:var(--low-bg);color:var(--low)}
 body[data-octave="true"] .control.octave[aria-pressed="true"]{background:var(--high-bg);color:var(--high)}
 .control-glyph{font-size:16px;line-height:1}
 .control-hint{color:var(--sub);font-size:10px;font-weight:500}
 .keypad{position:relative;display:grid;grid-template-columns:repeat(4,minmax(64px,1fr));gap:7px;padding:0 10px calc(10px + var(--safe-bottom))}
-.note-key{position:relative;min-width:64px;min-height:64px;border:1.5px solid rgba(61,107,46,.38);border-radius:16px;background:linear-gradient(150deg,#fff,var(--low-bg));color:var(--low);display:grid;grid-template-columns:auto 1fr;grid-template-rows:1fr 1fr;column-gap:6px;align-items:center;padding:7px 8px;cursor:pointer;box-shadow:0 5px 0 rgba(61,107,46,.12),0 8px 16px rgba(74,54,28,.06);transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
+.note-key{position:relative;min-width:64px;min-height:64px;border:1.5px solid rgba(61,107,46,.38);border-radius:16px;background:linear-gradient(150deg,var(--raised),var(--low-bg));color:var(--low);display:grid;grid-template-columns:auto 1fr;grid-template-rows:1fr 1fr;column-gap:6px;align-items:center;padding:7px 8px;cursor:pointer;box-shadow:0 5px 0 rgba(61,107,46,.12),0 8px 16px rgba(74,54,28,.06);transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
 .note-key .number{grid-row:1 / 3;font-size:27px;font-weight:850;line-height:1;letter-spacing:-.06em}
 .note-key .sol{align-self:end;font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .note-key .yul{align-self:start;color:var(--sub);font-size:9.5px;line-height:1.2;white-space:nowrap}
 .note-key.selected{border-color:currentColor;box-shadow:0 5px 0 currentColor,0 10px 18px rgba(74,54,28,.08)}
 .note-key.pressed{transform:translateY(4px);box-shadow:0 1px 0 currentColor,0 4px 8px rgba(74,54,28,.06)}
-body[data-octave="true"] .note-key{border-color:rgba(180,101,47,.42);background:linear-gradient(150deg,#fff,var(--high-bg));color:var(--high);box-shadow:0 5px 0 rgba(180,101,47,.14),0 8px 16px rgba(74,54,28,.06)}
+body[data-octave="true"] .note-key{border-color:rgba(180,101,47,.42);background:linear-gradient(150deg,var(--raised),var(--high-bg));color:var(--high);box-shadow:0 5px 0 rgba(180,101,47,.14),0 8px 16px rgba(74,54,28,.06)}
 body[data-octave="true"] .note-key.selected{box-shadow:0 5px 0 currentColor,0 10px 18px rgba(74,54,28,.08)}
 .float-note{position:absolute;left:50%;top:12px;z-index:3;transform:translateX(-50%);font-size:12px;font-weight:850;color:currentColor;pointer-events:none}
 .finger{transition-property:transform;transition-duration:260ms;transition-timing-function:var(--ease);will-change:transform}
@@ -148,6 +166,7 @@ ${animatedReferenceCss}
 ${lineJointCss}
 .line-illustration [stroke]:not([stroke="none"]) { vector-effect:non-scaling-stroke }
 .line-illustration .joint-guide {display:none}
+.svg-ink{fill:var(--svg-ink)}.svg-sub{fill:var(--svg-sub)}.svg-strong{fill:var(--svg-strong)}.svg-muted{fill:var(--svg-muted)}
 body:not(.ready) .line-illustration [data-joint] {transition:none!important}
 .hole-ripple{fill:none;stroke:var(--low);stroke-width:2.5;opacity:0;transform-box:fill-box;transform-origin:center}
 body[data-tone="high"] .hole-ripple{stroke:var(--high)}
@@ -171,7 +190,7 @@ body:not(.ready) .finger{transition:none!important}
 @media (min-width:640px) and (orientation:landscape){
   .appbar{padding-inline:22px}.brand-copy h1{font-size:17px}.brand-copy p{display:block}
   .workspace{flex-direction:row;padding:10px;gap:10px}
-  .stage{flex:1;min-width:0;border:1px solid rgba(92,98,71,.16);border-radius:22px;background:rgba(255,255,255,.28)}
+  .stage{flex:1;min-width:0;border:1px solid rgba(92,98,71,.16);border-radius:22px;background:var(--stage-bg)}
   .stage-toolbar{padding:6px 8px;min-height:56px}
   .deck{flex:0 0 clamp(280px,27vw,328px);min-width:0;display:flex;flex-direction:column;border:1px solid rgba(92,98,71,.16);border-radius:22px;overflow-y:auto;overscroll-behavior:contain;box-shadow:var(--shadow)}
   .info-strip{min-height:104px;padding:12px 16px;gap:8px 10px}
@@ -405,6 +424,18 @@ byId('settingsButton').addEventListener('click',()=>settingsDialog.showModal());
 byId('closeSettings').addEventListener('click',()=>settingsDialog.close());
 settingsDialog.addEventListener('click',(event)=>{if(event.target===settingsDialog)settingsDialog.close();});
 
+function applyTheme(mode,remember=true){
+  const dark=mode==='dark';
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  byId('darkTheme').setAttribute('aria-pressed',String(dark));
+  byId('lightTheme').setAttribute('aria-pressed',String(!dark));
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute('content',dark?'#161913':'${C.paper}');
+  if(remember){try{localStorage.setItem('danso-theme',dark?'dark':'light');}catch(_error){}}
+}
+byId('lightTheme').addEventListener('click',()=>applyTheme('light'));
+byId('darkTheme').addEventListener('click',()=>applyTheme('dark'));
+
 document.addEventListener('keydown',(event)=>{
   if(event.target.closest('button,dialog')&&event.key===' ')return;
   if(event.key==='Shift'&&!shiftOctave){shiftOctave=true;renderKeys();return;}
@@ -434,6 +465,7 @@ window.addEventListener('pagehide',()=>{if(audioEngine)audioEngine.destroy();});
   if(noteId>=9){octaveOn=true;selectedButton=noteId-7;}
   else if(noteId===8){octaveOn=false;selectedButton=8;}
   else{selectedButton=noteId;}
+  applyTheme(document.documentElement.dataset.theme==='dark'?'dark':'light',false);
   renderKeys();selectNote(NOTES[noteId-1],{animate:false,updateHistory:false});
   requestAnimationFrame(()=>document.body.classList.add('ready'));
 })();
@@ -455,6 +487,7 @@ const html = `<!doctype html>
   <meta name="theme-color" content="${C.paper}">
   <meta name="description" content="숫자 버튼을 누르며 단소의 계이름, 운지법, 실제 음을 함께 익히는 모바일 학습 웹앱">
   <title>단소 운지법 배우기</title>
+  <script id="theme-init">(function(){var m='light';try{var s=localStorage.getItem('danso-theme');if(s==='dark'||s==='light'){m=s;}else if(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches){m='dark';}}catch(_error){}document.documentElement.dataset.theme=m;})();</script>
   <style>${css}</style>
 </head>
 <body data-tone="low" data-octave="false">
@@ -462,7 +495,13 @@ const html = `<!doctype html>
   <div class="app-shell">
     <header class="appbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true">簫</span><div class="brand-copy"><h1>단소 운지법 배우기</h1><p>손가락으로 익히고, 귀로 확인해요</p></div></div>
-      <button class="icon-button" id="settingsButton" type="button" aria-label="사용 안내 열기">⚙</button>
+      <div class="appbar-actions">
+        <div class="theme-switch" role="group" aria-label="화면 모드">
+          <button id="lightTheme" type="button" aria-pressed="false" aria-label="화이트 모드" title="화이트 모드">☀</button>
+          <button id="darkTheme" type="button" aria-pressed="false" aria-label="다크 모드" title="다크 모드">☾</button>
+        </div>
+        <button class="icon-button" id="settingsButton" type="button" aria-label="사용 안내 열기">⚙</button>
+      </div>
     </header>
     <main class="workspace">
       <section class="stage" aria-label="단소 운지 애니메이션 스테이지">
