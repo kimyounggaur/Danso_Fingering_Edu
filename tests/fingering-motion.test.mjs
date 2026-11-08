@@ -71,7 +71,7 @@ test('확대/전체 보기를 반복해도 15음의 운지와 연주 상태를 �
       toggle.events.click();
       const full=i%2===0;
       assert.equal(toggle.getAttribute('aria-pressed'),String(full));
-      assert.equal(elements.get('handPanel').getAttribute('viewBox'),full?'24 178 350 980':'24 230 350 640');
+      assert.equal(elements.get('handPanel').getAttribute('viewBox'),full?'-60 -40 1361 1347':'0 0 1241 1267');
       assert.equal(state(),before,`${note.id}음 ${i+1}번째 보기 전환`);
     }
   }
@@ -94,17 +94,31 @@ test('관절 참고 그림과 표준 운지 그림을 바꿔도 선택 음을 �
  button.events.click();
  assert.equal(elements.get('line-visual').style.display,'none');
  assert.equal(elements.get('standard-visual').style.display,'');
+ assert.equal(elements.get('handPanel').getAttribute('viewBox'),'24 230 350 640');
  assert.equal(vm.runInNewContext('currentNote.id',context),3);
+ elements.get('viewToggle').setAttribute('aria-pressed','false');
+ elements.get('viewToggle').events.click();
+ assert.equal(elements.get('handPanel').getAttribute('viewBox'),'24 178 350 980');
  button.events.click();
  assert.equal(elements.get('line-visual').style.display,'');
  assert.equal(elements.get('standard-visual').style.display,'none');
+ assert.equal(elements.get('handPanel').getAttribute('viewBox'),'-60 -40 1361 1347');
  assert.equal(vm.runInNewContext('currentNote.id',context),3);
 });
 test('라인 참고 그림은 추정 지공 없이 순수 벡터와 개별 관절로 구성',async()=>{
  const html=await readFile(new URL('../public/danso-app.html',import.meta.url),'utf8');
  assert.match(html,/손가락 움직임 참고/);
- assert.match(html,/선택한 음의 운지 · ①은 뒷면/);
+ assert.match(html,/선택한 음의 운지 <span>· ①은 뒷면/);
  assert.doesNotMatch(html,/data-hole-reference="approximate"/);
  for(const name of ['left-index','left-middle','right-middle','right-ring'])
    for(const joint of ['mcp','pip','dip'])assert.match(html,new RegExp(`id="${name}-${joint}"`));
+});
+test('라인 그림과 운지 안내가 나란히 배치되고 작은 화면에서도 상태를 유지',async()=>{
+ const html=await readFile(new URL('../public/danso-app.html',import.meta.url),'utf8');
+ assert.match(html,/<div class="stage-viewport"><div class="stage-art">/);
+ assert.match(html,/<aside class="stage-info" aria-label="선택한 음의 지공 상태">/);
+ assert.match(html,/\.stage-viewport\{[^}]*display:flex/);
+ assert.match(html,/@media \(max-width:639px\)\{[\s\S]*?\.finger-states\{grid-template-columns:repeat\(3/);
+ const {elements}=await boot(3);
+ assert.equal(elements.get('lineStateH3').textContent,'◐');
 });

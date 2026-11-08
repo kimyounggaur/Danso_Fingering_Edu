@@ -39,17 +39,16 @@ const lineJointCss = Object.entries(lineFingers).map(([hole, finger]) => {
   }).join('\n');
 }).join('\n');
 const lineStates = Array.from({length:5},(_,i)=>{
-  const x=75+i*62;
-  return `<g><text x="${x}" y="775" text-anchor="middle" font-size="15" fill="#4f5b54">${i===0?'① 뒤':`${i+1}공`}</text><text id="lineStateH${i+1}" x="${x}" y="809" text-anchor="middle" font-size="30" fill="#263733">○</text></g>`;
+  return `<div class="finger-state"><span class="finger-state-name">${i===0?'① 뒤':`${i+1}공`}</span><span class="finger-state-symbol" id="lineStateH${i+1}">○</span></div>`;
 }).join('');
-const linePanel = `<g id="line-visual">
-  <text x="199" y="278" text-anchor="middle" font-size="17" font-weight="700" fill="#35483e">손가락 움직임 참고</text>
-  <text x="199" y="300" text-anchor="middle" font-size="12" fill="#53655a">지공 상태는 아래 운지표를 확인하세요</text>
-  <svg x="28" y="318" width="342" height="400" viewBox="0 0 1241 1267" overflow="hidden" aria-hidden="true" class="line-illustration">${lineScene}</svg>
-  <text x="199" y="741" text-anchor="middle" font-size="16" font-weight="700" fill="#35483e">선택한 음의 운지 · ①은 뒷면</text>
-  ${lineStates}
-  <text x="199" y="836" text-anchor="middle" font-size="12" fill="#53655a">● 막음　◐ 반 막음　○ 열림</text>
-</g>`;
+const linePanel = `<g id="line-visual" class="line-illustration">${lineScene}</g>`;
+const lineInfo = `<aside class="stage-info" aria-label="선택한 음의 지공 상태">
+  <div class="motion-info"><h2>손가락 움직임 참고</h2><p>지공 상태는 아래 운지표를 확인하세요</p></div>
+  <div class="fingering-info"><h2>선택한 음의 운지 <span>· ①은 뒷면</span></h2>
+    <div class="finger-states" aria-hidden="true">${lineStates}</div>
+    <p class="state-legend">● 막음&nbsp; ◐ 반 막음&nbsp; ○ 열림</p>
+  </div>
+</aside>`;
 
 const ripplePoints = animatedHolePoints;
 
@@ -59,7 +58,8 @@ const rippleSvg = Object.entries(ripplePoints)
 
 // Keep the rear-thumb inset, every front hole, open fingers and wrist context in focus.
 const STAGE_VIEWS = { focus: '24 230 350 640', full: '24 178 350 980' };
-const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox="${STAGE_VIEWS.focus}" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stageTitle stageDesc">
+const LINE_VIEWS = { focus: '0 0 1241 1267', full: '-60 -40 1361 1347' };
+const panelSvg = `<svg id="handPanel" xmlns="http://www.w3.org/2000/svg" viewBox="${LINE_VIEWS.focus}" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="stageTitle stageDesc">
   <title id="stageTitle">단소를 잡은 양손 운지 애니메이션</title>
   <desc id="stageDesc">손가락 관절 움직임은 참고 그림이며, 선택한 음의 정확한 지공 상태는 운지표에 표시됩니다. 운지 그림 보기를 선택하면 지공과 손가락 위치를 자세히 볼 수 있습니다.</desc>
   ${linePanel}
@@ -105,7 +105,24 @@ button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
 .view-toggle{min-height:44px;padding:0 13px;border:1px solid rgba(92,98,71,.25);border-radius:999px;background:var(--card);font-size:12px;font-weight:750;cursor:pointer}
 .view-toggle[aria-pressed="true"]{color:var(--low);background:var(--low-bg);border-color:var(--low)}
 .icon-button:focus-visible,.view-toggle:focus-visible{outline-offset:-4px}
-.stage-viewport{position:relative;flex:1;min-height:0;width:100%}
+.stage-viewport{position:relative;flex:1;min-height:0;width:100%;display:flex;align-items:stretch;gap:clamp(4px,1.5vw,18px)}
+.stage-art{position:relative;flex:1 1 auto;min-width:0;min-height:0;height:100%}
+.stage-info{position:relative;flex:0 0 clamp(130px,29%,280px);min-width:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(20px,5vh,52px);color:#35483e;text-align:center}
+.stage-info h2{margin:0;font-size:clamp(13px,1.4vw,18px);line-height:1.35;word-break:keep-all}
+.stage-info h2 span{white-space:nowrap}
+.stage-info p{margin:7px 0 0;font-size:clamp(10px,.95vw,13px);line-height:1.45;color:#53655a;word-break:keep-all}
+.finger-states{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin-top:14px}
+.finger-state{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.finger-state-name{font-size:clamp(10px,1vw,14px);color:#53655a;white-space:nowrap}
+.finger-state-symbol{font-size:clamp(23px,2.1vw,32px);line-height:1;color:#263733}
+.stage-info .state-legend{font-size:clamp(10px,.85vw,12px);white-space:normal}
+@media (max-width:639px){
+  .stage-viewport{gap:4px}
+  .stage-info{flex-basis:clamp(112px,32%,155px);gap:12px}
+  .stage-info h2{font-size:12px}.stage-info p{font-size:10px;margin-top:4px}
+  .finger-states{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px 1px;margin-top:7px}
+  .finger-state{gap:1px}.finger-state-name{font-size:10px}.finger-state-symbol{font-size:22px}
+}
 .stage #handPanel{height:100%;width:100%;display:block;filter:drop-shadow(0 12px 24px rgba(74,54,28,.08))}
 .play-hint{margin:0;padding:0 12px 7px;color:var(--sub);font-size:11px;line-height:1.5;text-align:center}
 .deck{flex:0 0 auto;border-top:1px solid rgba(92,98,71,.18);background:rgba(253,251,245,.95);box-shadow:0 -12px 36px rgba(74,54,28,.06)}
@@ -204,6 +221,7 @@ const BREATH={
 };
 const DANSO_SYNTH_VERSION='${DANSO_SYNTH_VERSION}';
 const STAGE_VIEWS=${JSON.stringify(STAGE_VIEWS)};
+const LINE_VIEWS=${JSON.stringify(LINE_VIEWS)};
 ${audioEngineSource}
 let octaveOn=false,shiftOctave=false,soundOn=true,currentNote=null,selectedButton=1;
 let audioContext=null,audioEngine=null,activePointer=null,activeButton=null,keyboardButton=null;
@@ -380,16 +398,23 @@ document.querySelectorAll('.note-key').forEach((button)=>{
 byId('octaveToggle').addEventListener('click',()=>setOctave(!octaveOn));
 byId('viewToggle').addEventListener('click',()=>{
   const full=byId('viewToggle').getAttribute('aria-pressed')!=='true';
-  byId('handPanel').setAttribute('viewBox',full?STAGE_VIEWS.full:STAGE_VIEWS.focus);
   byId('viewToggle').setAttribute('aria-pressed',String(full));
+  updateStageView();
   byId('stageLabel').textContent=full?'전체 단소 자세':'손·지공 확대';
 });
+function updateStageView(){
+  const standard=byId('illustrationToggle').getAttribute('aria-pressed')==='true';
+  const full=byId('viewToggle').getAttribute('aria-pressed')==='true';
+  const views=standard?STAGE_VIEWS:LINE_VIEWS;
+  byId('handPanel').setAttribute('viewBox',full?views.full:views.focus);
+}
 byId('illustrationToggle').addEventListener('click',()=>{
   const standard=byId('illustrationToggle').getAttribute('aria-pressed')!=='true';
   byId('standard-visual').style.display=standard?'':'none';
   byId('line-visual').style.display=standard?'none':'';
   byId('illustrationToggle').setAttribute('aria-pressed',String(standard));
   byId('illustrationToggle').textContent=standard?'관절 그림':'운지 그림';
+  updateStageView();
 });
 byId('soundToggle').addEventListener('click',()=>{
   soundOn=!soundOn;
@@ -467,7 +492,7 @@ const html = `<!doctype html>
     <main class="workspace">
       <section class="stage" aria-label="단소 운지 애니메이션 스테이지">
         <div class="stage-toolbar"><p class="stage-label" id="stageLabel">손·지공 확대</p><div class="stage-actions"><button class="view-toggle" id="illustrationToggle" type="button" aria-pressed="false" aria-controls="handPanel">운지 그림</button><button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" aria-controls="handPanel">전체 보기</button></div></div>
-        <div class="stage-viewport">${panelSvg}</div>
+        <div class="stage-viewport"><div class="stage-art">${panelSvg}</div>${lineInfo}</div>
       </section>
       <section class="deck" aria-label="음 선택과 연주 컨트롤">
         <div class="info-strip" aria-live="polite" aria-atomic="true">
