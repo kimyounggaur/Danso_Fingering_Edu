@@ -13,6 +13,7 @@ class FakeElement {
   getAttribute(k){return this.attrs[k]??null}
   removeAttribute(k){delete this.attrs[k]}
   addEventListener(k,v){this.events[k]=v}
+  click(){return this.events.click?.()}
   querySelector(){return new FakeElement()}
   querySelectorAll(){return [new FakeElement(),new FakeElement(),new FakeElement()]}
   appendChild(){} remove(){}
@@ -22,11 +23,11 @@ async function boot(id, reduced=false) {
   const code=html.match(/<script>([\s\S]*)<\/script>/)?.[1];assert.ok(code);
   const elements=new Map(); const get=(id)=>{if(!elements.has(id))elements.set(id,new FakeElement());return elements.get(id)};
   const buttons=Array.from({length:8},(_,i)=>{const b=new FakeElement();b.dataset.button=String(i+1);return b});
-  const document={body:new FakeElement(),getElementById:get,querySelectorAll:(s)=>s==='.note-key'?buttons:[],querySelector:()=>buttons[0],addEventListener(){},createElement:()=>new FakeElement()};
+  const docEvents={}; const document={body:new FakeElement(),getElementById:get,querySelectorAll:(s)=>s==='.note-key'?buttons:[],querySelector:()=>buttons[0],addEventListener(k,v){(docEvents[k]??=[]).push(v)},createElement:()=>new FakeElement()};
   const window={matchMedia:()=>({matches:reduced}),addEventListener(){},setTimeout(){}};
   const context={document,window,navigator:{},URL,URLSearchParams,location:{href:`https://example.test/?note=${id}`,search:`?note=${id}`},history:{replaceState(){}},requestAnimationFrame:fn=>fn()};
   vm.runInNewContext(code,context);
-  return {elements,context,buttons};
+  return {elements,context,buttons,docEvents};
 }
 const ids=['fingL1','fingL2','fingL3','fingR4','fingR5'];
 test('15음의 지공 상태가 손가락 개별 모션과 일치',async()=>{
@@ -134,4 +135,15 @@ test('전체화면 API가 없으면 패널 확대와 복원이 선택 음을 보
  await button.events.click();
  assert.equal(stage.classList.contains('panel-expanded'),false);
  assert.equal(button.getAttribute('aria-pressed'),'false');
+});
+
+
+test('0과 숫자 키패드 0은 전체화면을 전환하고 반복 및 수정키 조합은 무시한다',async()=>{
+ const {elements,context,docEvents}=await boot(3); const stage=elements.get('fingeringStage');
+ const fire=(key,code,extra={})=>{let prevented=false; const ev={key,code,repeat:false,target:{closest:()=>null},preventDefault(){prevented=true},...extra}; for(const fn of docEvents.keydown)fn(ev); return prevented};
+ assert.equal(fire('0','Digit0'),true); assert.equal(stage.classList.contains('panel-expanded'),true);
+ assert.equal(fire('0','Numpad0',{repeat:true}),false); assert.equal(stage.classList.contains('panel-expanded'),true);
+ assert.equal(fire('0','Digit0',{ctrlKey:true}),false); assert.equal(stage.classList.contains('panel-expanded'),true);
+ assert.equal(fire('0','Numpad0'),true); assert.equal(stage.classList.contains('panel-expanded'),false);
+ assert.equal(vm.runInNewContext('currentNote.id',context),3);
 });

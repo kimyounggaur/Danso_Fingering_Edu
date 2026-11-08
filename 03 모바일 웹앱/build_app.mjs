@@ -453,6 +453,9 @@ document.addEventListener('keydown',(event)=>{
   if(event.target.closest('button,dialog')&&event.key===' ')return;
   if(event.key==='Shift'&&!shiftOctave){shiftOctave=true;renderKeys();return;}
   if(event.repeat)return;
+  if((event.key==='0'||event.code==='Numpad0')&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&!event.shiftKey&&!event.target.closest('input,textarea,select,[contenteditable],dialog')){
+    event.preventDefault();fullscreenButton.click();return;
+  }
   if(/^[1-8]$/.test(event.key)){
     event.preventDefault();const button=document.querySelector('[data-button="'+event.key+'"]');
     keyboardButton=button;beginButton(button,'keyboard');return;
@@ -533,7 +536,7 @@ const html = `<!doctype html>
     <div class="sheet-head"><h2 id="settingsTitle">연주 사용 안내</h2><button class="close-sheet" id="closeSettings" type="button" aria-label="닫기">×</button></div>
     <div class="sheet-body">
       <h3>키보드로도 연주할 수 있어요</h3>
-      <dl class="key-guide"><dt>1–8</dt><dd>계이름 선택</dd><dt>Shift + 숫자</dt><dd>누르는 동안 높은음</dd><dt>O</dt><dd>옥타브 고정 전환</dd><dt>Space</dt><dd>마지막 음 다시 듣기</dd></dl>
+      <dl class="key-guide"><dt>0</dt><dd>운지 패널 전체화면 전환</dd><dt>1–8</dt><dd>계이름 선택</dd><dt>Shift + 숫자</dt><dd>누르는 동안 높은음</dd><dt>O</dt><dd>옥타브 고정 전환</dd><dt>Space</dt><dd>마지막 음 다시 듣기</dd></dl>
       <details class="reference-photo"><summary>단소 잡는 자세 참고하기</summary><div class="reference-grid">${referenceImages}</div><p>제공된 이미지는 단소를 잡는 자세를 살펴보기 위한 참고 자료입니다. 선택한 음의 운지는 애니메이션을 확인하세요.</p></details>
       <div class="tip-card"><strong>고품질 단소 합성음</strong><br>배음, 입김, 취구 소리와 자연스러운 흔들림을 기기 안에서 실시간으로 합성합니다. 처음 재생할 때 브라우저의 소리를 허용해 주세요.</div>
     </div>
