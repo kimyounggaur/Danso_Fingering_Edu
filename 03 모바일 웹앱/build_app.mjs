@@ -98,6 +98,8 @@ button:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
 .icon-button:hover{background:rgba(92,98,71,.08)}
 .workspace{flex:1;min-height:0;display:flex;flex-direction:column}
 .stage{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;padding:0 8px 4px;overflow:hidden}
+.stage:fullscreen,.stage.panel-expanded{position:fixed;inset:0;z-index:100;width:100%;height:100dvh;max-width:none;max-height:none;margin:0;border:0;border-radius:0;background:var(--paper);padding:0 8px 4px}
+.stage-toolbar{flex-wrap:wrap}
 .stage::before{content:"";position:absolute;width:min(72vw,310px);aspect-ratio:1;border:1px solid rgba(61,107,46,.14);border-radius:50%;box-shadow:0 0 0 18px rgba(61,107,46,.025),0 0 0 38px rgba(61,107,46,.018)}
 .stage::before{left:50%;top:50%;transform:translate(-50%,-50%)}
 .stage-toolbar{position:relative;z-index:1;flex:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px}
@@ -396,6 +398,23 @@ document.querySelectorAll('.note-key').forEach((button)=>{
 });
 
 byId('octaveToggle').addEventListener('click',()=>setOctave(!octaveOn));
+const stage=byId('fingeringStage');
+const fullscreenButton=byId('fullscreenToggle');
+function syncFullscreen(){
+  const active=document.fullscreenElement===stage||stage.classList.contains('panel-expanded');
+  fullscreenButton.setAttribute('aria-pressed',String(active));
+  fullscreenButton.textContent=active?'전체화면 나가기':'전체화면';
+}
+fullscreenButton.addEventListener('click',async()=>{
+  if(document.fullscreenElement===stage){await document.exitFullscreen();return;}
+  if(stage.classList.contains('panel-expanded')){stage.classList.remove('panel-expanded');syncFullscreen();return;}
+  try {if(!stage.requestFullscreen)throw new Error('unsupported');await stage.requestFullscreen();}
+  catch(_error){stage.classList.add('panel-expanded');syncFullscreen();}
+});
+document.addEventListener('fullscreenchange',syncFullscreen);
+document.addEventListener('keydown',(event)=>{
+  if(event.key==='Escape'&&stage.classList.contains('panel-expanded')){stage.classList.remove('panel-expanded');syncFullscreen();}
+});
 byId('viewToggle').addEventListener('click',()=>{
   const full=byId('viewToggle').getAttribute('aria-pressed')!=='true';
   byId('viewToggle').setAttribute('aria-pressed',String(full));
@@ -490,8 +509,8 @@ const html = `<!doctype html>
       <button class="icon-button" id="settingsButton" type="button" aria-label="사용 안내 열기">⚙</button>
     </header>
     <main class="workspace">
-      <section class="stage" aria-label="단소 운지 애니메이션 스테이지">
-        <div class="stage-toolbar"><p class="stage-label" id="stageLabel">손·지공 확대</p><div class="stage-actions"><button class="view-toggle" id="illustrationToggle" type="button" aria-pressed="false" aria-controls="handPanel">운지 그림</button><button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" aria-controls="handPanel">전체 보기</button></div></div>
+      <section class="stage" id="fingeringStage" aria-label="단소 운지 애니메이션 스테이지">
+        <div class="stage-toolbar"><p class="stage-label" id="stageLabel">손·지공 확대</p><div class="stage-actions"><button class="view-toggle" id="fullscreenToggle" type="button" aria-pressed="false" aria-controls="fingeringStage">전체화면</button><button class="view-toggle" id="illustrationToggle" type="button" aria-pressed="false" aria-controls="handPanel">운지 그림</button><button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" aria-controls="handPanel">전체 보기</button></div></div>
         <div class="stage-viewport"><div class="stage-art">${panelSvg}</div>${lineInfo}</div>
       </section>
       <section class="deck" aria-label="음 선택과 연주 컨트롤">

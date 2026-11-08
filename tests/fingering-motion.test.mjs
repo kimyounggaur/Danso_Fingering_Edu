@@ -122,3 +122,16 @@ test('라인 그림과 운지 안내가 나란히 배치되고 작은 화면에�
  const {elements}=await boot(3);
  assert.equal(elements.get('lineStateH3').textContent,'◐');
 });
+
+test('전체화면 API가 없으면 패널 확대와 복원이 선택 음을 보존한다',async()=>{
+ const {elements,context}=await boot(3);
+ const button=elements.get('fullscreenToggle'), stage=elements.get('fingeringStage');
+ await button.events.click();
+ assert.equal(stage.classList.contains('panel-expanded'),true);
+ assert.equal(button.getAttribute('aria-pressed'),'true');
+ assert.equal(button.textContent,'전체화면 나가기');
+ assert.equal(vm.runInNewContext('currentNote.id',context),3);
+ await button.events.click();
+ assert.equal(stage.classList.contains('panel-expanded'),false);
+ assert.equal(button.getAttribute('aria-pressed'),'false');
+});
